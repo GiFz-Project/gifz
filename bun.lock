@@ -9,6 +9,7 @@
         "@hackthedev/dsync-files": "^1.0.7",
         "@hackthedev/dsync-ipsec": "^1.0.7",
         "@hackthedev/dsync-ratelimit": "^1.0.1",
+        "bcrypt": "^6.0.0",
       },
     },
   },
@@ -22,6 +23,12 @@
     "@hackthedev/dsync-ipsec": ["@hackthedev/dsync-ipsec@1.0.7", "", {}, "sha512-XDMHYfV+/k8qPVd9Nz3WpggVi686cvKCu4gMZ1/KvDUeRd1OgfeWDnB/cNohhkpzf/kFGOnrPt4OlPX4xaroCg=="],
 
     "@hackthedev/dsync-ratelimit": ["@hackthedev/dsync-ratelimit@1.0.1", "", { "dependencies": { "@hackthedev/arraytools": "^1.0.1", "@hackthedev/dsync-ipsec": "^1.0.1" } }, "sha512-DvvFxlf+33JmjMuC4vaL3WKxEq2kdXmN8PjVnvRQAWXdofDpqAXptn7yScFOJfDw853cFsuhYaYaN5+ziZBWFA=="],
+
+    "bcrypt": ["bcrypt@6.0.0", "", { "dependencies": { "node-addon-api": "^8.3.0", "node-gyp-build": "^4.8.4" } }, "sha512-cU8v/EGSrnH+HnxV2z0J7/blxH8gq7Xh2JFT6Aroax7UohdmiJJlxApMxtKfuI7z68NvvVcmR78k2LbT6efhRg=="],
+
+    "node-addon-api": ["node-addon-api@8.5.0", "", {}, "sha512-/bRZty2mXUIFY/xU5HLvveNHlswNJej+RnxBjOMkidWfwZzgTbPG1E3K5TOxRLOR+5hX7bSofy8yf1hZevMS8A=="],
+
+    "node-gyp-build": ["node-gyp-build@4.8.4", "", { "bin": { "node-gyp-build": "bin.js", "node-gyp-build-optional": "optional.js", "node-gyp-build-test": "build-test.js" } }, "sha512-LA4ZjwlnUblHVgq0oBF3Jl/6h/Nvs5fzBLwdEF4nuxnFdsfajde4WfxtJr3CaiH+F6ewcIB/q4jQ4UzPyid+CQ=="],
 
     "@hackthedev/dsync-ratelimit/@hackthedev/dsync-ipsec": ["@hackthedev/dsync-ipsec@1.0.2", "", {}, "sha512-+fUsFwH2mbkrKR9sZf6NyJq3VQNg3tQhIyobQZ7u7zzdMdKvIA7sHvtDUjSNlH5LPCX69RVUW2WVWoF8WQ3VFA=="],
   }
