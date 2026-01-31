@@ -1,0 +1,29 @@
+:root {
+    --main: #131415;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: hsl(from var(--main) h s calc(l * 14));
+    color: hsl(from var(--main) h s calc(l * 1));
+    overflow: hidden;
+}
+
+*{
+    box-sizing: border-box;
+
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(from var(--main) h s calc(l * 3)) transparent;
+    font-family: 'Roboto', sans-serif;
+    overflow-anchor: none;
+}
+
+a {
+    color: hsl(from var(--main) h s calc(l * 1));
+    font-style: italic;
+}

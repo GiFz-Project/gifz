@@ -1,0 +1,46 @@
+.layout{
+    display: flex;
+    flex-direction: column;
+
+    width: 60%;
+    height: 100%;
+    align-self: center;
+    margin: auto;
+}
+
+.layout .header{
+    display: flex;
+    flex-direction: row;
+
+    background-color: green;
+    width: 100%;
+
+    padding: 8px;
+}
+
+.layout .header .buttons{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-self: end;
+    margin-left: auto;
+}
+
+.layout .content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+
+    width: 100%;
+    background-color: indianred;
+
+    overflow: auto;
+}
+
+.layout .footer{
+    display: flex;
+    flex-direction: row;
+
+    background-color: orange;
+    align-content: end;
+}
