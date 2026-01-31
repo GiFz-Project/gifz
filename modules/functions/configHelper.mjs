@@ -34,6 +34,10 @@ function buildConfig(jsonObject){
     JSONTools.checkObjectKeys(jsonObject, "storage.max_size_gb", 2, true);
     JSONTools.checkObjectKeys(jsonObject, "storage.path", "./public/uploads/", true);
 
+    JSONTools.checkObjectKeys(jsonObject, "ratelimits.gifs.search.ip", 50, true);
+    JSONTools.checkObjectKeys(jsonObject, "ratelimits.gifs.search.total", 20_000, true);
+    JSONTools.checkObjectKeys(jsonObject, "ratelimits.gifs.search.block_duration", "20 minutes", true);
+
     saveConfig("config.json", jsonObject);
 }
 

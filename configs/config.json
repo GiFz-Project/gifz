@@ -10,5 +10,14 @@
     "storage": {
         "max_size_gb": 2,
         "path": "./public/uploads/"
+    },
+    "ratelimits": {
+        "gifs": {
+            "search": {
+                "ip": 50,
+                "total": 20000,
+                "block_duration": "20 minutes"
+            }
+        }
     }
 }

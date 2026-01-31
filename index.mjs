@@ -111,10 +111,15 @@ const tables = [
         columns: [
             {name: "rowId", type: "int(12) NOT NULL AUTO_INCREMENT"},
             {name: "host", type: "varchar(255) DEFAULT NULL"},
-            {name: "accountId", type: "VARCHAR(20) NOT NULL"},
+            {name: "accountId", type: "VARCHAR(20) DEFAULT NULL"},
             {name: "fileHash", type: "varchar(255) DEFAULT NULL"},
             {name: "isBlocked", type: "bigint NOT NULL DEFAULT 0"},
             {name: "status", type: "varchar(255) NOT NULL DEFAULT 'pending'"},
+            //
+            {name: "views", type: "bigint NOT NULL DEFAULT 0"},
+            {name: "tags", type: "text NOT NULL"},
+            {name: "type", type: "varchar(255) NOT NULL DEFAULT 'unkown'"}, // image, gif, ...
+            //
             {name: "created", type: "bigint NOT NULL DEFAULT (UNIX_TIMESTAMP() * 1000)"},
         ],
         keys: [

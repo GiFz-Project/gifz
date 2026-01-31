@@ -5,5 +5,9 @@
   "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@hackthedev/datetools": "^1.0.1",
+    "@hackthedev/dsync-ratelimit": "^1.0.1"
   }
 }
