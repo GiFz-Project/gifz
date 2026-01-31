@@ -65,3 +65,21 @@ a {
     color: hsl(from var(--main) h s calc(l * 14));
     border: 1px solid hsl(from var(--main) h s calc(l * 14) / 20%);
 }
+
+
+/* account.css */
+
+#accountPopup{
+    background-color: hsl(from var(--main) h s calc(l * 1) / 80%);
+}
+
+#accountPopup .account-layout{
+    background-color: hsl(from var(--main) h s calc(l * 14));
+}
+#accountPopup .account-layout .nav {
+    background-color: var(--accent);
+    color: hsl(from var(--main) h s calc(l * 14));
+}
+#accountPopup .account-layout .nav details ul{
+    background-color: hsl(from var(--main) h s calc(l * 14));
+}

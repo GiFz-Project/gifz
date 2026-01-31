@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" href="/css/gifs.css?v={{version}}">
     <link rel="stylesheet" href="/css/gif_viewer.css?v={{version}}">
+    <link rel="stylesheet" href="/css/account.css?v={{version}}">
     <link rel="stylesheet" href="/style.css?v={{version}}">
 
     <!-- Core Libs etc -->
@@ -22,6 +23,7 @@
     <script src="/js/core/prompts.js?v={{version}}"></script>
     <script src="/js/core/sysmsg.js?v={{version}}"></script>
 
+    <script src="/js/account.js?v={{version}}"></script>
     <script src="/js/api.js?v={{version}}"></script>
     <script src="/js/gifs.js?v={{version}}"></script>
 </head>
@@ -63,6 +65,7 @@
 
         displayTrendingGIFs()
         registerGifContext()
+        showAccountPopup();
     })
 
     function findAttributeUp(element, attr, maxDepth = 10) {
