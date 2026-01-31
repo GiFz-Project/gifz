@@ -1,17 +1,94 @@
 import {db} from "../../index.mjs";
 import {config} from "./configHelper.mjs";
+import Logger from "@hackthedev/terminal-logger"
+
+
+let startedViewJob = false;
+
+export async function runResourceViewJob(skipInterval = false, intervalMs = 5 * 60_000, batchLimit = 1000){
+    if(startedViewJob === true) throw new Error("Job already started");
+
+    setInterval(async () => {
+        await processViews();
+    }, intervalMs);
+
+    if(skipInterval){
+        await processViews();
+    }
+
+    startedViewJob = true;
+
+    async function processViews(){
+        try {
+            const rows = await db.queryDatabase(
+                `
+                SELECT DISTINCT resourceId
+                FROM resource_views
+                WHERE status = 'pending'
+                LIMIT ?
+                `,
+                [batchLimit]
+            );
+
+            for (const r of rows) {
+                Logger.info(`Processing views of resource ${r.resourceId}`);
+                await processResourceViews(r.resourceId, batchLimit);
+            }
+        } catch (err) {
+            console.error("runResourceViewJob error:", err);
+        }
+    }
+}
 
 export async function addResourceView(rowId){
     if(!rowId) throw new Error("Resource id not specified");
-    await db.queryDatabase(`INSERT IGNORE INTO resource_views (resourceId) VALUES (?)`, [rowId])
+    await db.queryDatabase(
+        `INSERT IGNORE INTO resource_views (resourceId, status) VALUES (?, 'pending')`,
+        [rowId]
+    );
 }
 
-export async function processResourceViews(rowId){
-    if(!rowId) throw new Error("Resource id not specified");
+export async function processResourceViews(rowId, limit = 1000){
+    if(!rowId) throw new Error("Resource id was not specified when processing views");
 
-    let unprocessedViews = await db.queryDatabase(`SELECT rowId resource_views WHERE resourceId = ? AND status='pending'`, [rowId])
-    console.log(unprocessedViews);
+    const rows = await db.queryDatabase(
+        `
+        SELECT rowId
+        FROM resource_views
+        WHERE resourceId = ? AND status = 'pending'
+        LIMIT ?
+        `,
+        [rowId, limit]
+    );
+
+    if(!rows.length) return 0;
+
+    const ids = rows.map(r => r.rowId);
+    const count = ids.length;
+
+    await db.queryDatabase(
+        `
+        UPDATE resources
+        SET views = views + ?
+        WHERE rowId = ?
+        `,
+        [count, rowId]
+    );
+
+    const placeholders = ids.map(() => "?").join(",");
+
+    await db.queryDatabase(
+        `
+        UPDATE resource_views
+        SET status = 'processed'
+        WHERE rowId IN (${placeholders})
+        `,
+        ids
+    );
+
+    return count;
 }
+
 
 export async function getPopularGIFS(limit = 50, timestamp = null) {
     const where = [

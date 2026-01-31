@@ -8,6 +8,8 @@ import dSyncIPSec from "@hackthedev/dsync-ipsec"
 import path from "path"
 import fs from "fs"
 import {getConfigObject} from "./modules/functions/configHelper.mjs";
+import {addResourceView, runResourceViewJob} from "./modules/functions/gifHelper.mjs";
+import {getCache, setCache} from "./modules/functions/cache.mjs";
 
 console.clear();
 
@@ -65,7 +67,17 @@ export let ipsec = new dSyncIPSec({
         "::1",
         "127.0.0.1",
         "localhost"
-    ]
+    ],
+    //
+    checkCache: async (ip) => {
+        let ipInfoRow = await getCache(ip, "ip_cache");
+        if(ipInfoRow.length === 0){
+            await setCache(ip, "ip_cache");
+        }
+    },
+    setCache: async (ip, data) => {
+        await setCache(ip, "ip_cache", JSON.stringify(data));
+    }
 });
 
 initMain();
@@ -141,6 +153,20 @@ const tables = [
         ]
     },
     {
+        name: "cache",
+        columns: [
+            {name: "rowId", type: "int(12) NOT NULL AUTO_INCREMENT"},
+            {name: "type", type: "varchar(255) NOT NULL"},
+            {name: "identifier", type: "varchar(255) NOT NULL"},
+            {name: "data", type: "text NOT NULL DEFAULT 'pending'"},
+            {name: "created", type: "bigint NOT NULL DEFAULT (UNIX_TIMESTAMP() * 1000)"},
+        ],
+        keys: [
+            {name: "PRIMARY KEY", type: "(rowId)"},
+            {name: "UNIQUE KEY", type: "identifier (identifier)"},
+        ]
+    },
+    {
         name: "audit_log",
         columns: [
             {name: "rowId", type: "int(16) NOT NULL AUTO_INCREMENT"},
@@ -211,6 +237,8 @@ async function initMain() {
     await initUploadHandle();
 
     Logger.space(2)
+
+    await runResourceViewJob(true);
 }
 
 async function initUploadHandle() {
@@ -239,6 +267,14 @@ async function initUploadHandle() {
                 const tags = req?.query.tags;
                 if(!tags) return false;
                 return true
+            },
+
+            onFileAccess: async (req) => {
+                let fileHash = req.params.id;
+                let resourceRow = await db.queryDatabase(`SELECt rowId FROM resources WHERE fileHash = ? AND status='approved'`, [fileHash])
+                if(!resourceRow) return Logger.warn(`${fileHash}: Unable to update views stats`);
+
+                addResourceView(resourceRow[0].rowId);
             },
 
             onFinish: async (req, file) => {

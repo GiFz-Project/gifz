@@ -6,7 +6,8 @@
       "name": "gifz",
       "dependencies": {
         "@hackthedev/datetools": "^1.0.1",
-        "@hackthedev/dsync-files": "^1.0.6",
+        "@hackthedev/dsync-files": "^1.0.7",
+        "@hackthedev/dsync-ipsec": "^1.0.5",
         "@hackthedev/dsync-ratelimit": "^1.0.1",
       },
     },
@@ -16,10 +17,12 @@
 
     "@hackthedev/datetools": ["@hackthedev/datetools@1.0.1", "", {}, "sha512-6xtBypklkzTHYR7pn9KAjTyyo988zvSu7daa3pysbCgysHJtLCwZGMXng2qgaNl2O1YYwiwT5XOLgd1iBkjCnA=="],
 
-    "@hackthedev/dsync-files": ["@hackthedev/dsync-files@1.0.6", "", {}, "sha512-pBzH0z2tHNhBHEMNndvW68zUcsIVVKD9GMTEx08YoufHP9NI3i7stXhVnwZElbcPzPgWkdsxecHlIK4GQp7dIw=="],
+    "@hackthedev/dsync-files": ["@hackthedev/dsync-files@1.0.7", "", {}, "sha512-ndHW1P+aSzegArz5XeKQ2TnIGuxTzUU29MYJwNBVyAPkn1dLPOPw6g4tlYtlNixIqe+UtWY/+/MUnWXlUb303Q=="],
 
-    "@hackthedev/dsync-ipsec": ["@hackthedev/dsync-ipsec@1.0.2", "", {}, "sha512-+fUsFwH2mbkrKR9sZf6NyJq3VQNg3tQhIyobQZ7u7zzdMdKvIA7sHvtDUjSNlH5LPCX69RVUW2WVWoF8WQ3VFA=="],
+    "@hackthedev/dsync-ipsec": ["@hackthedev/dsync-ipsec@1.0.5", "", {}, "sha512-ja2zqKiDmNRq9mM41CpUI1nLidZPryRaZhmRyNcK9UxgHWwtt3FqrQzmrhg+brjjIv8qf5+chh6dAjd9xZFuEQ=="],
 
     "@hackthedev/dsync-ratelimit": ["@hackthedev/dsync-ratelimit@1.0.1", "", { "dependencies": { "@hackthedev/arraytools": "^1.0.1", "@hackthedev/dsync-ipsec": "^1.0.1" } }, "sha512-DvvFxlf+33JmjMuC4vaL3WKxEq2kdXmN8PjVnvRQAWXdofDpqAXptn7yScFOJfDw853cFsuhYaYaN5+ziZBWFA=="],
+
+    "@hackthedev/dsync-ratelimit/@hackthedev/dsync-ipsec": ["@hackthedev/dsync-ipsec@1.0.2", "", {}, "sha512-+fUsFwH2mbkrKR9sZf6NyJq3VQNg3tQhIyobQZ7u7zzdMdKvIA7sHvtDUjSNlH5LPCX69RVUW2WVWoF8WQ3VFA=="],
   }
 }
