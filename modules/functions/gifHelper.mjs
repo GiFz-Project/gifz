@@ -1,7 +1,7 @@
 import {db} from "../../index.mjs";
 import {config} from "./configHelper.mjs";
 import Logger from "@hackthedev/terminal-logger"
-
+import DateTools from "@hackthedev/datetools";
 
 let startedViewJob = false;
 
@@ -99,10 +99,15 @@ export async function getPopularGIFS(limit = 50, timestamp = null) {
 
     const params = [];
 
+    if (!timestamp) {
+        timestamp = DateTools.getDateFromOffset(`-${config.uploads.trending_duration} days`).getTime();
+    }
+
     if (timestamp) {
         where.push("created >= ?");
         params.push(timestamp);
     }
+
 
     // max limit
     if(typeof limit !== "number" && limit != null) limit = config.ratelimits.gifs.search.max_amount;

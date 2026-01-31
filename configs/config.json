@@ -18,11 +18,23 @@
                 "total": 20000,
                 "block_duration": "20 minutes",
                 "max_amount": 50
+            },
+            "upload": {
+                "ip": 50,
+                "total": 500,
+                "block_duration": "10 minutes"
+            }
+        },
+        "files": {
+            "access": {
+                "ip": 200,
+                "total": 80000
             }
         }
     },
     "uploads": {
         "default_status": "approved",
-        "max_tags": 20
+        "max_tags": 20,
+        "trending_duration": 30
     }
 }

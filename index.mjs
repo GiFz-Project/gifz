@@ -3,8 +3,8 @@ import SocketTools from "@hackthedev/socket-tools"
 import dSyncFiles from "@hackthedev/dsync-files";
 import dSyncSql from "@hackthedev/dsync-sql"
 import Logger from "@hackthedev/terminal-logger";
-//import dSyncIPSec from "@hackthedev/dsync-ipsec"
-import dSyncIPSec from "E:\\network-z-dev\\dSyncIPSec\\index.mjs"
+import dSyncIPSec from "@hackthedev/dsync-ipsec"
+//import dSyncIPSec from "E:\\network-z-dev\\dSyncIPSec\\index.mjs"
 
 import path from "path"
 import fs from "fs"
@@ -12,6 +12,8 @@ import {getConfigObject} from "./modules/functions/configHelper.mjs";
 import {addResourceView, runResourceViewJob} from "./modules/functions/gifHelper.mjs";
 import {getCache, setCache} from "./modules/functions/cache.mjs";
 import {runTranscodingJob} from "./modules/functions/transcoding.mjs";
+import dSyncRateLimit from "@hackthedev/dsync-ratelimit";
+import DateTools from "@hackthedev/datetools";
 
 console.clear();
 
@@ -248,6 +250,14 @@ async function initMain() {
 }
 
 async function initUploadHandle() {
+
+    const file_ratelimits = new dSyncRateLimit({
+        windowMs: 60_000,
+        getBlockUntil: async (req) => {
+            return DateTools.getDateFromOffset(config.ratelimits.gifs.upload.block_duration);
+        }
+    });
+
     dFiles.registerFileUploadHandle({
         app: starter.app,
         urlPath: "/upload",
@@ -282,6 +292,14 @@ async function initUploadHandle() {
                 const r = await ipsec.checkRequest(req);
                 if (!r.allow) return false;
 
+                // upload rate limit
+                const rUser = file_ratelimits.check(`upload/${ipsec.getClientIp(req)}`,config.ratelimits.gifs.upload.ip);
+                const rTotal = file_ratelimits.check(`upload/total`, config.ratelimits.gifs.upload.total);
+
+                if (!rUser.ok || !rTotal.ok) {
+                    return false;
+                }
+
                 const tags = req?.query.tags;
                 if(!tags) return false;
                 return true
@@ -292,6 +310,15 @@ async function initUploadHandle() {
                 if (!r.allow) return false;
 
                 let fileHash = req.params.id.split("_")[0];
+
+                // file access rate limit
+                const rUser = file_ratelimits.check(`file/${fileHash}/${ipsec.getClientIp(req)}`,config.ratelimits.files.access.ip);
+                const rTotal = file_ratelimits.check(`file/${fileHash}/total`, config.ratelimits.files.access.total);
+
+                if (!rUser.ok || !rTotal.ok) {
+                    return false;
+                }
+
                 let resourceRow = await db.queryDatabase(`SELECt rowId FROM resources WHERE fileHash = ? AND status='approved'`, [fileHash])
                 if(!resourceRow) return Logger.warn(`${fileHash}: Unable to update views stats`);
 

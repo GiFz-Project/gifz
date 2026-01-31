@@ -28,7 +28,9 @@
 }
 #promptContainer .tag-bubble{
     margin: 8px;
-    padding: 8px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
     background-color: hsl(from var(--main) h s calc(l * 8) / 20%)
 }
 #promptContainer #tag-container{
@@ -59,7 +61,8 @@
 .layout .content .trending-gifs-container{
     column-count: 4;
     column-gap: 12px;
-    height: 100%;
+    height: auto;
+    width: 100%;
 }
 
 .layout .content .trending-gifs-container img{

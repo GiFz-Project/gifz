@@ -31,7 +31,7 @@
     flex-direction: column;
     flex-grow: 1;
 
-    margin-top: 2rem;
+    margin: 2rem auto;
 
     width: 100%;
     overflow: auto;

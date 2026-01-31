@@ -38,10 +38,19 @@ function buildConfig(jsonObject){
     JSONTools.checkObjectKeys(jsonObject, "ratelimits.gifs.search.ip", 50, true);
     JSONTools.checkObjectKeys(jsonObject, "ratelimits.gifs.search.total", 20_000, true);
     JSONTools.checkObjectKeys(jsonObject, "ratelimits.gifs.search.block_duration", "20 minutes", true);
+    //
+    JSONTools.checkObjectKeys(jsonObject, "ratelimits.gifs.upload.ip", 50, true);
+    JSONTools.checkObjectKeys(jsonObject, "ratelimits.gifs.upload.total", 500, true);
+    JSONTools.checkObjectKeys(jsonObject, "ratelimits.gifs.upload.block_duration", "10 minutes", true);
+    //
+    JSONTools.checkObjectKeys(jsonObject, "ratelimits.files.access.ip", 200, true);
+    JSONTools.checkObjectKeys(jsonObject, "ratelimits.files.access.total", 80_000, true);
+
 
 
     JSONTools.checkObjectKeys(jsonObject, "uploads.default_status", "pending", true);
     JSONTools.checkObjectKeys(jsonObject, "uploads.max_tags", 20, true);
+    JSONTools.checkObjectKeys(jsonObject, "uploads.trending_duration", 30, true);
 
     saveConfig("config.json", jsonObject);
 }
