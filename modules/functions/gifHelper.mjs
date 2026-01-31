@@ -133,7 +133,7 @@ export async function searchPopularGifs(search, timestamp = null, limit= 50) {
 
     if (!tags.length) return [];
 
-    const tagClauses = tags.map(() => "FIND_IN_SET(?, tags)").join(" OR ");
+    const tagClauses = tags.map(() => "FIND_IN_SET(?, tags)").join(" AND ");
     const params = [...tags];
 
     const where = [

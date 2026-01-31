@@ -348,6 +348,8 @@ async function initUploadHandle() {
                         config.uploads.default_status
                     ]
                 );
+
+                runTranscodingJob(false, true);
             }
         }
     });

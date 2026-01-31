@@ -2,6 +2,7 @@ import { db, storagePath } from "../../index.mjs";
 import { readdir, access } from "fs/promises";
 import { spawn } from "child_process";
 import path from "path";
+import Logger from "@hackthedev/terminal-logger"
 
 let startedTranscodingJob = false;
 
@@ -16,14 +17,20 @@ let mediaVariants = {
     }
 };
 
-export async function runTranscodingJob(skipInterval = false, intervalMs = 5 * 60_000) {
-    if (startedTranscodingJob) throw new Error("Job already started");
+export async function runTranscodingJob(skipInterval = false, force = false, intervalMs = 5 * 60_000) {
+    if (startedTranscodingJob && !force) throw new Error("Job already started");
 
-    setInterval(async () => {
+    if(force === false){
+        setInterval(async () => {
+            await ensureMediaVariants(storagePath, mediaVariants);
+        }, intervalMs);
+    }
+
+    if (skipInterval && !force) {
         await ensureMediaVariants(storagePath, mediaVariants);
-    }, intervalMs);
+    }
 
-    if (skipInterval) {
+    if(force){
         await ensureMediaVariants(storagePath, mediaVariants);
     }
 
@@ -46,6 +53,7 @@ export async function ensureMediaVariants(dir, variants) {
             const out = path.join(dir, `${base}_${name}.${cfg.ext}`);
 
             if (await exists(out)) continue;
+            Logger.info(`Transcoding file ${base}`)
 
             await runFFmpeg([
                 "-i", src,

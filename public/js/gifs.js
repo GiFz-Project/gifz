@@ -66,6 +66,9 @@ async function uploadGIF(error = null) {
     const input = document.getElementById("gif-input");
     const preview = document.getElementById("gif-preview");
 
+    const tagInput = document.getElementById("tag-input");
+    const tagContainer = document.getElementById("tag-container");
+
     drop.onclick = e => {
         if (e.target === input) return;
         input.click();
@@ -93,10 +96,10 @@ async function uploadGIF(error = null) {
         const reader = new FileReader();
         reader.onload = () => preview.src = reader.result;
         reader.readAsDataURL(file);
+
+        tagInput.focus()
     };
 
-    const tagInput = document.getElementById("tag-input");
-    const tagContainer = document.getElementById("tag-container");
 
     tagInput.addEventListener("keydown", e => {
         if (e.key !== "Enter") return;
