@@ -34,8 +34,8 @@ class User {
             const data = await res.json();
             if (!res.ok || data.error) throw new Error(data.error || "Register failed");
 
-            localStorage.setItem("auth_id", data.id);
-            localStorage.setItem("auth_token", data.token);
+            localStorage.setItem("id", data.id);
+            localStorage.setItem("token", data.token);
 
             return data;
         }
@@ -53,8 +53,8 @@ class User {
             const data = await res.json();
             if (!res.ok || data.error) throw new Error(data.error || "Login failed");
 
-            localStorage.setItem("auth_id", data.id);
-            localStorage.setItem("auth_token", data.token);
+            localStorage.setItem("id", data.id);
+            localStorage.setItem("token", data.token);
 
             return data;
         }

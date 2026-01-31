@@ -45,7 +45,7 @@ export async function validateAccount(accountId, accountToken){
 
     let accountObj = await getAccountFromDbByIdOrName(accountId)
     if(accountObj?.token !== accountToken) return false;
-    if(isTerminated(accountObj?.isTerminated)) return false
+    if(isTerminated(accountObj?.isTerminated)) return false;
     return true;
 }
 
@@ -59,6 +59,14 @@ export async function checkForExistingAccountByIdOrName(name, returnObj = false)
     if(existingAccount && !returnObj) return true;
     if(existingAccount && returnObj) return existingAccount;
     return false
+}
+
+export async function isAdminAccount(nameOrId){
+    if(!nameOrId) throw new Error("nameOrId must be defined");
+
+    let accountRow = await getAccountFromDbByIdOrName(sanitizeUsername(nameOrId))
+    if(accountRow?.length === 0) return false;
+    return accountRow?.isAdmin === 1;
 }
 
 export async function insertAccountIntoDb(id, token, name, passwordHash){

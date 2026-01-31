@@ -1,4 +1,10 @@
-import {createAccount, getAccountFromDbByIdOrName, isTerminated, sanitizeUsername} from "../../functions/accounts.mjs";
+import {
+    createAccount,
+    getAccountFromDbByIdOrName,
+    isAdminAccount,
+    isTerminated,
+    sanitizeUsername
+} from "../../functions/accounts.mjs";
 import bcrypt from "bcrypt";
 import {starter} from "../../../index.mjs";
 import dSyncRateLimit from "@hackthedev/dsync-ratelimit";
@@ -17,7 +23,7 @@ const register_limit = new dSyncRateLimit({
     }
 });
 
-starter.app.post("/register", async (req, res) => {
+starter.app.post("/register", starter.express.json(), async (req, res) => {
     try {
         const { name, password } = req.body;
 
@@ -42,7 +48,7 @@ starter.app.post("/register", async (req, res) => {
     }
 });
 
-starter.app.post("/login", async (req, res) => {
+starter.app.post("/login", starter.express.json(), async (req, res) => {
     try {
         const { name, password } = req.body;
 
