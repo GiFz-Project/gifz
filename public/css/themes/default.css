@@ -80,6 +80,11 @@ a {
     background-color: var(--accent);
     color: hsl(from var(--main) h s calc(l * 14));
 }
-#accountPopup .account-layout .nav details ul{
+#accountPopup .account-layout .nav details ul li{
     background-color: hsl(from var(--main) h s calc(l * 14));
+}
+
+#accountPopup .account-layout .nav details button{
+    background-color: transparent;
+    border: none;
 }

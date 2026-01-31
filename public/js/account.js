@@ -23,16 +23,23 @@ function getAccountNavHTML(){
     return `
         <details open>
             <summary>Overview</summary>
-            <ul>
-                <a href="#">
-                    <li>
-                        My Account
-                    </li>
-                </a>
+            <ul class="nav-list">
+                <li><button type="button" data-view="account">My Account</button></li>
             </ul>
         </details>
-    `
+
+        <details open>
+            <summary>Server Settings</summary>
+            <ul class="nav-list">
+                <li><button type="button" data-view="storage">Storage</button></li>
+                <li><button type="button" data-view="gif-search">GIF Search</button></li>
+                <li><button type="button" data-view="gif-uploads">GIF Uploads</button></li>
+                <li><button type="button" data-view="resource-access">Resource Access</button></li>
+            </ul>
+        </details>
+    `;
 }
+
 
 function hideAccountPopup(){
     getAccountPopupElement().classList.remove("open");

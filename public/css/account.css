@@ -26,6 +26,7 @@
 #accountPopup .account-layout{
     position: relative;
     display: none;
+
     flex-direction: column;
     flex-wrap: wrap;
     opacity: 0;
@@ -44,16 +45,32 @@
 }
 
 #accountPopup .account-layout .nav {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 20px;
+
     border-radius: 8px;
     padding: 8px;
     max-width: 300px;
 }
 #accountPopup .account-layout .nav details ul{
-    padding: 4px 4px 4px 1rem;
+    padding: 4px 4px 4px 0.75rem;
     list-style: none;
     margin-top: 4px;
 }
-#accountPopup .account-layout .nav details ul a{
+#accountPopup .account-layout .nav details{
+    user-select: none;
+}
+#accountPopup .account-layout .nav details ul li{
+    margin-bottom: 1px;
+}
+#accountPopup .account-layout .nav details button{
+    width: 100%;
+    padding: 8px;
+
+    text-align: start;
     font-style: normal;
     text-decoration: none;
+    cursor: pointer;
 }
