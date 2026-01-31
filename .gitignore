@@ -1,5 +1,6 @@
 .idea
 public/uploads
+configs/
 
 # Logs
 logs
