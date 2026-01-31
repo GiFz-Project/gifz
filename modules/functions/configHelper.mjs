@@ -31,6 +31,9 @@ function buildConfig(jsonObject){
 
     JSONTools.checkObjectKeys(jsonObject, "port", 2052, true);
 
+    JSONTools.checkObjectKeys(jsonObject, "storage.max_size_gb", 2, true);
+    JSONTools.checkObjectKeys(jsonObject, "storage.path", "./public/uploads/", true);
+
     saveConfig("config.json", jsonObject);
 }
 

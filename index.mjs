@@ -18,8 +18,18 @@ Logger.info("| |_| | |  _| / /")
 Logger.info(` \\____|_|_|  /___|`)
 Logger.info("")
 
+export const dFiles = new dSyncFiles();
 let config = getConfigObject();
 
+export let storagePath = path.resolve(config.storage.path)
+let usedUpStorageBytes = await dFiles.getFolderSize(storagePath);
+
+Logger.info(Logger.colors.underscore + Logger.colors.bright + "Overview")
+Logger.info(`Storage usage: ${(usedUpStorageBytes / (1024 * 1024 * 1024)).toFixed(1)} GB / ${config.storage.max_size_gb} GB`)
+Logger.space(2)
+
+
+// do db stuff
 export let db = new dSyncSql({
     host: config.sql.host,
     user: config.sql.user,
@@ -30,7 +40,7 @@ export let db = new dSyncSql({
     queueLimit: 0, // optional
 });
 
-export const dFiles = new dSyncFiles();
+// some definitions and ip security settings
 export let starter;
 export let socketTools;
 
@@ -44,7 +54,10 @@ export let ipsec = new dSyncIPSec({
     blockTor: true,
     blockAbuser: true,
     // some arrays
-    whitelistedUrls: [],
+    whitelistedUrls: [
+        "/^/discover(/.*)?$/",
+        "/^/uploads(/.*)?$/",
+    ],
     whitelistedIps: [],
     blockedCountryCodes: [],
     whitelistedCompanyDomains: [],
@@ -133,7 +146,8 @@ const tables = [
 async function initMain() {
     // Wait for database
     Logger.info("Starting up...");
-    Logger.info("Waiting for database connection...")
+    Logger.warn("Waiting for database connection...")
+
     await db.waitForConnection()
     Logger.success("Database connected!");
 
@@ -143,7 +157,7 @@ async function initMain() {
     starter.registerTemplateMiddleware({ // cool template engine
         getPlaceholders: async (req) => {
             return [
-                ["test", () => "Cool shit"]
+                ["project_name", () => "GiFz"]
             ]
         },
         getExtensions: async (req) => {
@@ -163,7 +177,7 @@ async function initMain() {
     );
 
     // begin to listen
-    starter.startHttpServer(5000);
+    starter.startHttpServer(config.port);
 
     // attach socket.io to existing server for real-time stuff
     socketTools = new SocketTools({expressHttpServer: starter.server});
@@ -176,42 +190,33 @@ async function initMain() {
     }
 
     await initUploadHandle();
+
+    Logger.space(2)
 }
 
 async function initUploadHandle() {
     dFiles.registerFileUploadHandle({
         app: starter.app,
         urlPath: "/upload",
-        uploadPath: path.join(starter.dirname, "public", "uploads"),
+        uploadPath: storagePath,
         limits: {
             getMaxMB: async (req) => {
-                const id = req.get("x-user-id");
-                const token = req.get("x-auth-token");
-
-                if (!id || !token) return 0; // cant upload without account
-
-                // todo: check auth
-
-                return 10 // default user limit without plan
+                return 15;
             },
 
             getMaxFolderSizeMB: async (req) => {
-                return 1024; // 1 GB
+                return Number(config.storage.max_size_gb) * 1024; // GB
             },
 
             getAllowedMimes: async (req) => {
                 return [
                     "image/png",
                     "image/jpeg",
+                    "image/gif",
                 ];
             },
 
             canUpload: async (req) => {
-                const id = req.get("x-user-id");
-                const token = req.get("x-auth-token");
-
-                if (!id || !token) return false;
-                // todo check auth
                 return true;
             },
         }

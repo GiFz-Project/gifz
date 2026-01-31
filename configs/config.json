@@ -6,5 +6,9 @@
         "db": "gifz",
         "connection_limit": 10
     },
-    "port": 2052
+    "port": 2051,
+    "storage": {
+        "max_size_gb": 2,
+        "path": "./public/uploads/"
+    }
 }
