@@ -10,6 +10,9 @@
 
 #promptContainer #gif-preview{
     max-width: 400px;
+    max-height: 250px;
+    object-fit: cover;
+    
     margin-top: 10px;
 
     border-radius: 8px;
