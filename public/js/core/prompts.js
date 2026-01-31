@@ -428,10 +428,6 @@ class Prompt {
         }
     }
 
-
-
-
-
     previewImage(event) {
         const inputId = event.target.id;
         const imagePreviewId = inputId + 'Preview';  // Assuming the preview element has the id matching the input id with "Preview" suffix

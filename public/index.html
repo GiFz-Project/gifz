@@ -46,6 +46,14 @@
 
 <script>
     let customPrompt = new Prompt();
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        diplayTrendingGIFs()
+    })
+
+    function getContentContainer(){
+        return document.querySelector(".layout .content");
+    }
 </script>
 
 

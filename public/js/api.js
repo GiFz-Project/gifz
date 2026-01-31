@@ -28,7 +28,7 @@ class API {
                 : encodeURIComponent(searchTermArray);
 
             let response = await fetch(
-                `/gifs/trending/search/${searchParam}${timestamp ? `/${timestamp}` : ""}${limit ? `/${limit}` : ""}`
+                `/gifs/search/${searchParam}${timestamp ? `/${timestamp}` : ""}${limit ? `/${limit}` : ""}`
             );
 
             if (response.status !== 200) throw new Error(response.statusText);

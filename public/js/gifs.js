@@ -129,3 +129,26 @@ async function uploadGIF(error = null) {
         tagInput.value = "";
     });
 }
+
+async function diplayTrendingGIFs(timestamp = null, limit = null) {
+    let gifResponse = await API.GIFS.getPopularGIFs(timestamp, limit);
+    let gifs = gifResponse?.gifs;
+    if(gifs?.length === 0) return;
+
+    getContentContainer().innerHTML = `
+        <h1>Popular GIFs</h1>
+        <div class='trending-gifs-container'></div>`;
+
+    let trendingContainer = getContentContainer().querySelector(".trending-gifs-container");
+
+    for(let gif of gifs) {
+        console.log(gif)
+        trendingContainer.insertAdjacentHTML("beforeend", getGifEntryHTML(gif));
+    }
+
+    function getGifEntryHTML(gifObj){
+        return `
+        <img class="gif-entry" src="/upload/${gifObj.fileHash}_preview"></img>
+        `
+    }
+}

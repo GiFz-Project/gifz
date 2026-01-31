@@ -100,7 +100,7 @@ export async function getPopularGIFS(limit = 50, timestamp = null) {
     const params = [];
 
     if (timestamp) {
-        where.push("created_at >= ?");
+        where.push("created >= ?");
         params.push(timestamp);
     }
 
@@ -123,14 +123,18 @@ export async function getPopularGIFS(limit = 50, timestamp = null) {
     return gifs;
 }
 
-export async function searchPopularGifs(search, limit= 50, timestamp = null) {
-    if (!search || !search.length) return await getPopularGIFS(timestamp);
+export async function searchPopularGifs(search, timestamp = null, limit= 50) {
+    if (!search || !search.length) return await getPopularGIFS(limit, timestamp);
 
-    const tagClauses = search.map(() =>
-        "CONCAT(',', tags, ',') LIKE ?"
-    ).join(" OR ");
 
-    const params = search.map(t => `%,${t},%`);
+    const tags = search
+        .map(t => t.trim().toLowerCase())
+        .filter(Boolean);
+
+    if (!tags.length) return [];
+
+    const tagClauses = tags.map(() => "FIND_IN_SET(?, tags)").join(" OR ");
+    const params = [...tags];
 
     const where = [
         "IsBlocked = 0",
@@ -140,22 +144,21 @@ export async function searchPopularGifs(search, limit= 50, timestamp = null) {
     ];
 
     if (timestamp) {
-        where.push("created_at >= ?");
+        where.push("created >= ?");
         params.push(timestamp);
     }
 
-    // max limit
-    if(typeof limit !== "number" && limit != null) limit = config.ratelimits.gifs.search.max_amount;
-    if(Number(limit) > config.ratelimits.gifs.search.max_amount)
+    if (typeof limit !== "number" || limit > config.ratelimits.gifs.search.max_amount) {
         limit = config.ratelimits.gifs.search.max_amount;
+    }
 
     const gifs = await db.queryDatabase(
         `
-        SELECT *
-        FROM resources
-        WHERE ${where.join(" AND ")}
-        ORDER BY views DESC
-        LIMIT ${limit}
+            SELECT *
+            FROM resources
+            WHERE ${where.join(" AND ")}
+            ORDER BY views DESC
+                LIMIT ${limit}
         `,
         params
     );

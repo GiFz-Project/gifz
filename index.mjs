@@ -11,6 +11,7 @@ import fs from "fs"
 import {getConfigObject} from "./modules/functions/configHelper.mjs";
 import {addResourceView, runResourceViewJob} from "./modules/functions/gifHelper.mjs";
 import {getCache, setCache} from "./modules/functions/cache.mjs";
+import {runTranscodingJob} from "./modules/functions/transcoding.mjs";
 
 console.clear();
 
@@ -243,6 +244,7 @@ async function initMain() {
     Logger.space(2)
 
     await runResourceViewJob(true);
+    await runTranscodingJob(true);
 }
 
 async function initUploadHandle() {
@@ -289,7 +291,7 @@ async function initUploadHandle() {
                 const r = await ipsec.checkRequest(req);
                 if (!r.allow) return false;
 
-                let fileHash = req.params.id;
+                let fileHash = req.params.id.split("_")[0];
                 let resourceRow = await db.queryDatabase(`SELECt rowId FROM resources WHERE fileHash = ? AND status='approved'`, [fileHash])
                 if(!resourceRow) return Logger.warn(`${fileHash}: Unable to update views stats`);
 

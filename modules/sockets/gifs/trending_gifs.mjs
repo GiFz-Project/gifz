@@ -12,23 +12,7 @@ const rateLimiter = new dSyncRateLimit({
 });
 
 starter.app.get(
-    "/gifs/trending{/:timestamp}{/:limit}",
-    rateLimiter.middleware({
-        getIpLimit: async () => config.ratelimits.gifs.search.ip,
-        getTotalLimit: async () => config.ratelimits.gifs.search.total,
-        getBlockUntil: async () => DateTools.getDateFromOffset(config.ratelimits.gifs.search.block_duration)
-    }),
-    async (req, res) => {
-        const {timestamp, limit} = req.params;
-
-        let popularGifs = await getPopularGIFS(limit, timestamp);
-        return res.status(200).json({error: null, gifs: popularGifs});
-    }
-);
-
-
-starter.app.get(
-    "/gifs/trending/search/:searchTerm{/:timestamp}{/:limit}",
+    "/gifs/search/:searchTerm{/:timestamp}{/:limit}",
     rateLimiter.middleware({
         getIpLimit: async () => config.ratelimits.gifs.search.ip,
         getTotalLimit: async () => config.ratelimits.gifs.search.total,
@@ -48,8 +32,23 @@ starter.app.get(
         const ts = timestamp ? Number(timestamp) : null;
         const lim = limit ? Number(limit) : null;
 
-        let popularGifs = await searchPopularGifs(search, lim, ts);
+        let popularGifs = await searchPopularGifs(search, ts, lim);
 
+        return res.status(200).json({error: null, gifs: popularGifs});
+    }
+);
+
+starter.app.get(
+    "/gifs/trending{/:timestamp}{/:limit}",
+    rateLimiter.middleware({
+        getIpLimit: async () => config.ratelimits.gifs.search.ip,
+        getTotalLimit: async () => config.ratelimits.gifs.search.total,
+        getBlockUntil: async () => DateTools.getDateFromOffset(config.ratelimits.gifs.search.block_duration)
+    }),
+    async (req, res) => {
+        const {timestamp, limit} = req.params;
+
+        let popularGifs = await getPopularGIFS(limit, timestamp);
         return res.status(200).json({error: null, gifs: popularGifs});
     }
 );

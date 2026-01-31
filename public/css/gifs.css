@@ -52,3 +52,23 @@
 #promptContainer #tag-length-info{
     font-size: 12px;
 }
+
+.layout .content .trending-gifs-container{
+    column-count: 4;
+    column-gap: 12px;
+    height: 100%;
+}
+
+.layout .content .trending-gifs-container img{
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: cover;
+
+
+    margin-bottom: 8px;
+    break-inside: avoid;
+
+    border-radius: 4px;
+    border: 1px solid hsl(from var(--main) h s calc(l * 1) / 40%)
+}
