@@ -39,7 +39,7 @@ starter.app.get(
 );
 
 starter.app.get(
-    "/gifs/trending{/:timestamp}{/:limit}",
+    "/gifs/trending{/:limit}{/:timestamp}",
     rateLimiter.middleware({
         getIpLimit: async () => config.ratelimits.gifs.search.ip,
         getTotalLimit: async () => config.ratelimits.gifs.search.total,
@@ -54,7 +54,7 @@ starter.app.get(
 );
 
 starter.app.get(
-    "/gifs/new{/:timestamp}{/:limit}",
+    "/gifs/new{/:limit}{/:timestamp}",
     rateLimiter.middleware({
         getIpLimit: async () => config.ratelimits.gifs.search.ip,
         getTotalLimit: async () => config.ratelimits.gifs.search.total,

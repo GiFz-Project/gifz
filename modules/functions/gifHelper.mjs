@@ -173,7 +173,7 @@ export async function getPopularGIFS(limit = 50, timestamp = null) {
 }
 
 export async function searchPopularGifs(search, timestamp = null, limit= 50) {
-    if (!search.trim() || !search?.trim()?.length) return await getPopularGIFS(limit, timestamp);
+    if (!search || !search?.length) return await getPopularGIFS(limit, timestamp);
 
     const tags = search
         .map(t => t.trim().toLowerCase())

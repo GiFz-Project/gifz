@@ -1,36 +1,35 @@
-import { db, storagePath } from "../../index.mjs";
-import { readdir, access } from "fs/promises";
+import { storagePath } from "../../index.mjs";
+import { readdir, access, unlink } from "fs/promises";
 import { spawn } from "child_process";
 import path from "path";
-import Logger from "@hackthedev/terminal-logger"
+import Logger from "@hackthedev/terminal-logger";
 
 let startedTranscodingJob = false;
 
-let mediaVariants = {
+const mediaVariants = {
     preview: {
         ext: "gif",
-        args: ["-vf", "scale=320:-1,fps=12"]
+        scale: "320:-1",
+        fps: 12
     },
     medium: {
         ext: "gif",
-        args: ["-vf", "scale=800:-1,fps=24"]
+        scale: "800:-1",
+        fps: 24
     }
 };
 
 export async function runTranscodingJob(skipInterval = false, force = false, intervalMs = 5 * 60_000) {
-    if (startedTranscodingJob && !force) throw new Error("Job already started");
+    if (startedTranscodingJob && !force)
+        throw new Error("Job already started");
 
-    if(force === false){
-        setInterval(async () => {
-            await ensureMediaVariants(storagePath, mediaVariants);
+    if (!force) {
+        setInterval(() => {
+            ensureMediaVariants(storagePath, mediaVariants).catch(console.error);
         }, intervalMs);
     }
 
-    if (skipInterval && !force) {
-        await ensureMediaVariants(storagePath, mediaVariants);
-    }
-
-    if(force){
+    if (skipInterval || force) {
         await ensureMediaVariants(storagePath, mediaVariants);
     }
 
@@ -51,18 +50,35 @@ export async function ensureMediaVariants(dir, variants) {
 
         for (const [name, cfg] of Object.entries(variants)) {
             const out = path.join(dir, `${base}_${name}.${cfg.ext}`);
-
             if (await exists(out)) continue;
-            Logger.info(`Transcoding file ${base}`)
 
-            await runFFmpeg([
-                "-i", src,
-                ...(cfg.args || []),
-                "-y",
-                out
-            ]);
+            Logger.info(`Transcoding ${base} → ${name}`);
+
+            await transcodeGifWithAlpha(src, out, cfg);
         }
     }
+}
+
+async function transcodeGifWithAlpha(src, out, cfg) {
+    const palette = out + ".palette.png";
+    const vf = `fps=${cfg.fps},scale=${cfg.scale}:flags=lanczos`;
+
+    await runFFmpeg([
+        "-i", src,
+        "-vf", `${vf},palettegen=reserve_transparent=1`,
+        "-y",
+        palette
+    ]);
+
+    await runFFmpeg([
+        "-i", src,
+        "-i", palette,
+        "-lavfi", `${vf}[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=5`,
+        "-y",
+        out
+    ]);
+
+    await unlink(palette);
 }
 
 async function exists(p) {
@@ -77,6 +93,6 @@ async function exists(p) {
 function runFFmpeg(args) {
     return new Promise((resolve, reject) => {
         const p = spawn("ffmpeg", args, { stdio: "ignore" });
-        p.on("exit", code => (code === 0 ? resolve() : reject(code)));
+        p.on("exit", code => code === 0 ? resolve() : reject(new Error(`ffmpeg exited with ${code}`)));
     });
 }
