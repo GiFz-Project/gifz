@@ -9,6 +9,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
 
+    opacity: 0;
     backdrop-filter: blur(20px);
     z-index: 2;
     width: 100%;
@@ -16,11 +17,18 @@
     transition: all 200ms ease-in-out;
 }
 
+#accountPopup.open,
+#accountPopup .account-layout.open{
+    opacity: 1;
+}
+
+
 #accountPopup .account-layout{
     position: relative;
-    display: flex;
+    display: none;
     flex-direction: column;
     flex-wrap: wrap;
+    opacity: 0;
 
     top: 50%;
     left: 50%;
@@ -29,7 +37,10 @@
     width: 90%;
     height: 90%;
 
-    padding: 21px;
+    padding: 20px;
+    border-radius: 10px;
+
+    transition: all 200ms ease-in-out;
 }
 
 #accountPopup .account-layout .nav {
@@ -40,6 +51,7 @@
 #accountPopup .account-layout .nav details ul{
     padding: 4px 4px 4px 1rem;
     list-style: none;
+    margin-top: 4px;
 }
 #accountPopup .account-layout .nav details ul a{
     font-style: normal;

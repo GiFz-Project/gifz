@@ -1,17 +1,21 @@
 function showAccountPopup(){
-
-
     getAccountPopupElement().innerHTML =
         `
         <div class="account-layout">
             <div class="nav">${getAccountNavHTML()}</div>
         
+            <div class="content">
+            
+            </div>
         </div>
         `
 
     getAccountPopupElement().style.display = "flex";
+    getAccountContentElement().style.display = "flex"
+
     requestAnimationFrame(function(){
-        getAccountPopupElement().style.opacity = "1"
+        getAccountPopupElement().classList.add("open");
+        getAccountContentElement().classList.add("open");
     })
 }
 
@@ -22,7 +26,7 @@ function getAccountNavHTML(){
             <ul>
                 <a href="#">
                     <li>
-                        Niggerlicious
+                        My Account
                     </li>
                 </a>
             </ul>
@@ -31,10 +35,17 @@ function getAccountNavHTML(){
 }
 
 function hideAccountPopup(){
-    getAccountPopupElement().style.opacity = 0;
+    getAccountPopupElement().classList.remove("open");
+    getAccountContentElement().classList.remove("open");
+
     setTimeout(() => {
-        getAccountPopupElement().style.display = "none"
-    },200);
+        getAccountPopupElement().style.display = "none";
+        getAccountContentElement().style.display = "none";
+    }, 200);
+}
+
+function getAccountContentElement(){
+    return getAccountPopupElement().querySelector(".account-layout")
 }
 
 function getAccountPopupElement(){
