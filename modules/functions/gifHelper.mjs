@@ -40,11 +40,11 @@ export async function runResourceViewJob(skipInterval = false, intervalMs = 5 * 
     }
 }
 
-export async function addResourceView(rowId){
+export async function addResourceView(rowId, country_code){
     if(!rowId) throw new Error("Resource id not specified");
     await db.queryDatabase(
-        `INSERT IGNORE INTO resource_views (resourceId, status) VALUES (?, 'pending')`,
-        [rowId]
+        `INSERT IGNORE INTO resource_views (resourceId, status, country_code) VALUES (?, 'pending', ?)`,
+        [rowId, country_code || "unkown"]
     );
 }
 

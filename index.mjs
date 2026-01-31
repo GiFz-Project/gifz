@@ -3,7 +3,8 @@ import SocketTools from "@hackthedev/socket-tools"
 import dSyncFiles from "@hackthedev/dsync-files";
 import dSyncSql from "@hackthedev/dsync-sql"
 import Logger from "@hackthedev/terminal-logger";
-import dSyncIPSec from "@hackthedev/dsync-ipsec"
+//import dSyncIPSec from "@hackthedev/dsync-ipsec"
+import dSyncIPSec from "E:\\network-z-dev\\dSyncIPSec\\index.mjs"
 
 import path from "path"
 import fs from "fs"
@@ -145,6 +146,7 @@ const tables = [
             {name: "rowId", type: "int(12) NOT NULL AUTO_INCREMENT"},
             {name: "resourceId", type: "varchar(255) DEFAULT NULL"},
             {name: "status", type: "varchar(255) NOT NULL DEFAULT 'pending'"},
+            {name: "country_code", type: "varchar(10) NOT NULL DEFAULT 'unkown'"},
             {name: "created", type: "bigint NOT NULL DEFAULT (UNIX_TIMESTAMP() * 1000)"},
         ],
         keys: [
@@ -197,6 +199,10 @@ async function initMain() {
 
     // start up express and socket.io
     starter = new ExpressStarter()
+
+    // ip based abuse
+    await ipsec.filterExpressTraffic(starter.app)
+
     starter.registerErrorHandlers(); // to avoid hard crashes and enable logging
     starter.registerTemplateMiddleware({ // cool template engine
         getPlaceholders: async (req) => {
@@ -211,8 +217,6 @@ async function initMain() {
     });
 
 
-    // ip based abuse
-    await ipsec.filterExpressTraffic(starter.app)
 
     // setup static files to serve
     starter.app.use(
@@ -248,14 +252,23 @@ async function initUploadHandle() {
         uploadPath: storagePath,
         limits: {
             getMaxMB: async (req) => {
+                const r = await ipsec.checkRequest(req);
+                if (!r.allow) return false;
+
                 return 15;
             },
 
             getMaxFolderSizeMB: async (req) => {
+                const r = await ipsec.checkRequest(req);
+                if (!r.allow) return false;
+
                 return Number(config.storage.max_size_gb) * 1024; // GB
             },
 
             getAllowedMimes: async (req) => {
+                const r = await ipsec.checkRequest(req);
+                if (!r.allow) return false;
+
                 return [
                     "image/png",
                     "image/jpeg",
@@ -264,20 +277,32 @@ async function initUploadHandle() {
             },
 
             canUpload: async (req) => {
+                const r = await ipsec.checkRequest(req);
+                if (!r.allow) return false;
+
                 const tags = req?.query.tags;
                 if(!tags) return false;
                 return true
             },
 
             onFileAccess: async (req) => {
+                const r = await ipsec.checkRequest(req);
+                if (!r.allow) return false;
+
                 let fileHash = req.params.id;
                 let resourceRow = await db.queryDatabase(`SELECt rowId FROM resources WHERE fileHash = ? AND status='approved'`, [fileHash])
                 if(!resourceRow) return Logger.warn(`${fileHash}: Unable to update views stats`);
 
-                addResourceView(resourceRow[0].rowId);
+                let clientIp = ipsec.getClientIp(req);
+                let ipInfo = await ipsec.lookupIP(clientIp);
+
+                addResourceView(resourceRow[0].rowId, ipInfo?.location?.country_code);
             },
 
             onFinish: async (req, file) => {
+                const r = await ipsec.checkRequest(req);
+                if (!r.allow) return false;
+
                 let accountId = req?.query?.accountId;
                 const token = req?.query?.token;
                 const rawTags = req?.query?.tags;

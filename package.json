@@ -9,7 +9,7 @@
   "dependencies": {
     "@hackthedev/datetools": "^1.0.1",
     "@hackthedev/dsync-files": "^1.0.7",
-    "@hackthedev/dsync-ipsec": "^1.0.5",
+    "@hackthedev/dsync-ipsec": "^1.0.7",
     "@hackthedev/dsync-ratelimit": "^1.0.1"
   }
 }
