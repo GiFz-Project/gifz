@@ -128,6 +128,19 @@ const tables = [
         ]
     },
     {
+        name: "resource_views",
+        columns: [
+            {name: "rowId", type: "int(12) NOT NULL AUTO_INCREMENT"},
+            {name: "resourceId", type: "varchar(255) DEFAULT NULL"},
+            {name: "status", type: "varchar(255) NOT NULL DEFAULT 'pending'"},
+            {name: "created", type: "bigint NOT NULL DEFAULT (UNIX_TIMESTAMP() * 1000)"},
+        ],
+        keys: [
+            {name: "PRIMARY KEY", type: "(rowId)"},
+            {name: "UNIQUE KEY", type: "created (created)"},
+        ]
+    },
+    {
         name: "audit_log",
         columns: [
             {name: "rowId", type: "int(16) NOT NULL AUTO_INCREMENT"},
@@ -162,7 +175,8 @@ async function initMain() {
     starter.registerTemplateMiddleware({ // cool template engine
         getPlaceholders: async (req) => {
             return [
-                ["project_name", () => "GiFz"]
+                ["project_name", () => "GiFz"],
+                ["max_tags", () => config.uploads.max_tags],
             ]
         },
         getExtensions: async (req) => {
@@ -222,17 +236,15 @@ async function initUploadHandle() {
             },
 
             canUpload: async (req) => {
-                const tags = req?.tags;
-
+                const tags = req?.query.tags;
                 if(!tags) return false;
-
                 return true
             },
 
             onFinish: async (req, file) => {
-                let accountId = req?.accountId;
-                const token = req?.token;
-                const rawTags = req?.tags;
+                let accountId = req?.query?.accountId;
+                const token = req?.query?.token;
+                const rawTags = req?.query?.tags;
 
                 if (!accountId) accountId = 0;
                 if (accountId && !token) accountId = 0;
@@ -253,9 +265,9 @@ async function initUploadHandle() {
                 if (rawTags) {
                     tags = rawTags
                         .split(",")
-                        .map(t => dFiles.sanitizeFilename(t).toLowerCase())
+                        .map(t => t.toLowerCase())
                         .filter(Boolean)
-                        .slice(0, 20)
+                        .slice(0, config.uploads.max_tags)
                         .join(",");
                 }
 

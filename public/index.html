@@ -8,7 +8,16 @@
     <title>{{project_name}} - Open Source GIF API</title>
 
     <link rel="stylesheet" href="/css/themes/default.css?v={{version}}">
+
+    <link rel="stylesheet" href="/css/gifs.css?v={{version}}">
     <link rel="stylesheet" href="/style.css?v={{version}}">
+
+    <!-- Core Libs etc -->
+    <script src="/js/core/FileManager.js?v={{version}}"></script>
+    <script src="/js/core/ContextMenu.js?v={{version}}"></script>
+    <script src="/js/core/PageRenderer.js?v={{version}}"></script>
+    <script src="/js/core/elementloader.js?v={{version}}"></script>
+    <script src="/js/core/prompts.js?v={{version}}"></script>
 
     <script src="/js/api.js?v={{version}}"></script>
     <script src="/js/gifs.js?v={{version}}"></script>
@@ -20,7 +29,7 @@
         <div class="name">{{project_name}} - Open Source GIF API</div>
 
         <div class="buttons">
-            <button class="upload">Upload</button>
+            <button class="upload" onclick="uploadGIF()">Upload</button>
             <button class="login">Login</button>
         </div>
     </div>
@@ -33,6 +42,11 @@
         test
     </div>
 </div>
+
+
+<script>
+    let customPrompt = new Prompt();
+</script>
 
 
 </body>

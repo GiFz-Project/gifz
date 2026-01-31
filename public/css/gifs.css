@@ -1,0 +1,54 @@
+#promptContainer #gif-drop{
+    width: 400px;
+    height: 200px;
+
+    padding: 8px;
+
+    border-radius: 8px;
+    border: 1px solid hsl(from var(--main) h s calc(l * 8) / 20%)
+}
+
+#promptContainer #gif-preview{
+    max-width: 400px;
+    margin-top: 10px;
+
+    border-radius: 8px;
+    border: 1px solid hsl(from var(--main) h s calc(l * 8) / 20%)
+}
+
+#promptContainer #tag-input{
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    outline: none;
+    margin-bottom: 8px;
+}
+#promptContainer .tag-bubble{
+    margin: 8px;
+    padding: 8px;
+    background-color: hsl(from var(--main) h s calc(l * 8) / 20%)
+}
+#promptContainer #tag-container{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 8px auto;
+
+    width: 400px;
+    border: 1px solid hsl(from var(--main) h s calc(l * 8) / 20%)
+}
+#promptContainer #error{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+
+    background-color: hsl(from indianred h s l / 40%);
+    border: 2px solid indianred;
+}
+#promptContainer #tag-length-info{
+    font-size: 12px;
+}

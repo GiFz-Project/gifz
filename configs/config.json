@@ -22,6 +22,7 @@
         }
     },
     "uploads": {
-        "default_status": "pending"
+        "default_status": "pending",
+        "max_tags": 20
     }
 }

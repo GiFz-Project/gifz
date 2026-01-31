@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@hackthedev/datetools": "^1.0.1",
+    "@hackthedev/dsync-files": "^1.0.6",
     "@hackthedev/dsync-ratelimit": "^1.0.1"
   }
 }
