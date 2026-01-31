@@ -197,6 +197,12 @@ async function uploadGIF(error = null) {
     });
 }
 
+async function displayNewGIFs(){
+    let newGifResponse = await API.GIFS.getNewGIFs();
+    if(!newGifResponse?.gifs) throw new Error("No GIFs found");
+    displayTrendingGIFs(newGifResponse.gifs);
+}
+
 async function displayTrendingGIFs(suppliedGifs = null, timestamp = null, limit = null) {
     let gifResponse = suppliedGifs ? null : await API.GIFS.getPopularGIFs(timestamp, limit);
     let gifs = suppliedGifs || gifResponse?.gifs;

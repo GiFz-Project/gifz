@@ -97,6 +97,43 @@ export async function getGifByHash(hash){
     return gifRow[0];
 }
 
+export async function getNewGIFS(limit = 50, timestamp = null) {
+    const where = [
+        "IsBlocked = 0",
+        "status = 'approved'",
+        "type = 'gif'"
+    ];
+
+    const params = [];
+
+    if (!timestamp) {
+        timestamp = DateTools.getDateFromOffset(`-${config.uploads.trending_duration} days`).getTime();
+    }
+
+    if (timestamp) {
+        where.push("created >= ?");
+        params.push(timestamp);
+    }
+
+    if (typeof limit !== "number" || limit > config.ratelimits.gifs.search.max_amount) {
+        limit = config.ratelimits.gifs.search.max_amount;
+    }
+
+    const gifs = await db.queryDatabase(
+        `
+        SELECT *
+        FROM resources
+        WHERE ${where.join(" AND ")}
+        ORDER BY created DESC
+        LIMIT ${limit}
+        `,
+        params
+    );
+
+    return gifs;
+}
+
+
 export async function getPopularGIFS(limit = 50, timestamp = null) {
     const where = [
         "IsBlocked = 0",
@@ -136,8 +173,7 @@ export async function getPopularGIFS(limit = 50, timestamp = null) {
 }
 
 export async function searchPopularGifs(search, timestamp = null, limit= 50) {
-    if (!search || !search.length) return await getPopularGIFS(limit, timestamp);
-
+    if (!search.trim() || !search?.trim()?.length) return await getPopularGIFS(limit, timestamp);
 
     const tags = search
         .map(t => t.trim().toLowerCase())
