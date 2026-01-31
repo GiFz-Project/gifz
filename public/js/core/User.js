@@ -21,6 +21,48 @@ class User {
     }
 
     static Auth = class {
+        static async register(name, password) {
+            if (!name || !password)
+                throw new Error("Missing name or password");
+
+            const res = await fetch("/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, password })
+            });
+
+            const data = await res.json();
+            if (!res.ok || data.error) throw new Error(data.error || "Register failed");
+
+            localStorage.setItem("auth_id", data.id);
+            localStorage.setItem("auth_token", data.token);
+
+            return data;
+        }
+
+        static async login(name, password) {
+            if (!name || !password)
+                throw new Error("Missing name or password");
+
+            const res = await fetch("/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, password })
+            });
+
+            const data = await res.json();
+            if (!res.ok || data.error) throw new Error(data.error || "Login failed");
+
+            localStorage.setItem("auth_id", data.id);
+            localStorage.setItem("auth_token", data.token);
+
+            return data;
+        }
+
+        static isLoggedIn() {
+            return !!this.get();
+        }
+
         static get() {
             return {
                 id: localStorage.getItem("id"),
