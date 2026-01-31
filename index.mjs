@@ -129,14 +129,16 @@ const tables = [
             {name: "host", type: "varchar(255) DEFAULT NULL"},
             {name: "accountId", type: "VARCHAR(20) DEFAULT NULL"},
             {name: "fileHash", type: "varchar(255) DEFAULT NULL"},
-            {name: "isBlocked", type: "bigint NOT NULL DEFAULT 0"},
             {name: "status", type: "varchar(255) NOT NULL DEFAULT 'pending'"},
+            {name: "created", type: "bigint NOT NULL DEFAULT (UNIX_TIMESTAMP() * 1000)"},
             //
             {name: "views", type: "bigint NOT NULL DEFAULT 0"},
             {name: "tags", type: "text NOT NULL"},
             {name: "type", type: "varchar(255) NOT NULL DEFAULT 'unkown'"}, // image, gif, ...
             //
-            {name: "created", type: "bigint NOT NULL DEFAULT (UNIX_TIMESTAMP() * 1000)"},
+            {name: "isBlocked", type: "bigint NOT NULL DEFAULT 0"},
+            {name: "isNSFW", type: "bigint NOT NULL DEFAULT 0"},
+            {name: "isSensitive", type: "bigint NOT NULL DEFAULT 0"},
         ],
         keys: [
             {name: "PRIMARY KEY", type: "(rowId)"},

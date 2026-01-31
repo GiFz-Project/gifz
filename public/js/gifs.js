@@ -139,7 +139,7 @@ async function diplayTrendingGIFs(timestamp = null, limit = null) {
     if(gifs?.length === 0) return;
 
     getContentContainer().innerHTML = `
-        <h1>Popular GIFs</h1>
+        <h2>Popular GIFs</h2>
         <div class='trending-gifs-container'></div>`;
 
     let trendingContainer = getContentContainer().querySelector(".trending-gifs-container");
@@ -151,7 +151,7 @@ async function diplayTrendingGIFs(timestamp = null, limit = null) {
 
     function getGifEntryHTML(gifObj){
         return `
-        <img class="gif-entry" src="/upload/${gifObj.fileHash}_preview"></img>
+        <img class="gif-entry" draggable="false" src="/upload/${gifObj.fileHash}_preview"></img>
         `
     }
 }

@@ -11,19 +11,66 @@
 .layout .header{
     display: flex;
     flex-direction: row;
+    align-items: center;
 
-    background-color: green;
+    font-weight: bold;
     width: 100%;
 
-    padding: 8px;
+    margin-top: 8px;
+    padding: 16px;
+    border-radius: 8px;
 }
 
+.layout .header .name{
+    font-size: 20px;
+}
 .layout .header .buttons{
     display: flex;
     flex-direction: row;
     gap: 10px;
+
     align-self: end;
     margin-left: auto;
+}
+
+.layout .header .buttons button{
+    padding: 6px 16px;
+    border-radius: 4px;
+
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.layout .quick-actions{
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0.5rem auto;
+}
+
+.layout .quick-actions span {
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+
+.layout .search{
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+
+    width: 100%;
+    padding-top: 1rem;
+}
+
+.layout .search input{
+    padding: 0.5rem;
+    border-radius: 4px;
+    outline: none;
 }
 
 .layout .content {
@@ -40,7 +87,9 @@
 .layout .footer{
     display: flex;
     flex-direction: row;
-
-    background-color: orange;
     align-content: end;
+
+    margin-bottom: 8px;
+    padding: 8px;
+    border-radius: 8px;
 }
