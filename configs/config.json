@@ -1,0 +1,10 @@
+{
+    "sql": {
+        "host": "localhost",
+        "user": "root",
+        "pass": "",
+        "db": "gifz",
+        "connection_limit": 10
+    },
+    "port": 2052
+}
