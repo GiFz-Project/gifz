@@ -1,3 +1,52 @@
+document.addEventListener("DOMContentLoaded", function(e) {
+    let searchTimeout = null;
+    getSearchInput().addEventListener('input', function(){
+        clearTimeout(searchTimeout);
+
+        searchTimeout = setTimeout(async () => {
+            let search = getSearchInput()?.value?.trim();
+            let tags = search?.length === 0 ? null : search.split(',');
+
+            if(tags) searchByTag(tags)
+            if(!tags) displayTrendingGIFs();
+        }, 500)
+    })
+})
+
+function registerGifContext(){
+    ContextMenu.registerClickEvent(
+        "gif-viewer",
+        [
+            ".layout .content img.gif-entry",
+        ],
+        async (data) => {
+            let hash = data.element.getAttribute("data-hash");
+            if (!hash) return console.error("Couldnt show gif because hash wasnt found")
+            viewGIF(hash);
+        }
+    )
+
+    ContextMenu.registerClickEvent(
+        "tagSearch",
+        [
+            ".tag",
+        ],
+        async (data) => {
+            let tag = data.element.innerText;
+            if(tag) {
+                searchByTag([tag])
+            }
+        }
+    )
+}
+
+async function searchByTag(tag){
+    if(!tag) return console.warn("No tags supplied in search")
+    let searchResult = await API.GIFS.searchPopularGIFs(tag);
+    displayTrendingGIFs(searchResult.gifs)
+    getSearchInput().value = tag
+}
+
 async function uploadGIF(error = null) {
     customPrompt.showPrompt(
         "Upload GIF",
@@ -22,7 +71,9 @@ async function uploadGIF(error = null) {
 
             if (!file) {
                 customPrompt.closePrompt();
-                return requestAnimationFrame(() => {uploadGIF("No file selected")});
+                return requestAnimationFrame(() => {
+                    uploadGIF("No file selected")
+                });
             }
 
             const tags = [...document.querySelectorAll(".tag-bubble")]
@@ -30,7 +81,9 @@ async function uploadGIF(error = null) {
 
             if (!tags || tags.length === 0) {
                 customPrompt.closePrompt();
-                return requestAnimationFrame(() => {uploadGIF("No tags selected!")});
+                return requestAnimationFrame(() => {
+                    uploadGIF("No tags selected!")
+                });
             }
 
             // now we gonna do some visual shit for showing upload progress
@@ -53,12 +106,19 @@ async function uploadGIF(error = null) {
                 }
             });
 
-            if(response?.ok && response?.path){
+            if (response?.ok && response?.path) {
                 // navigate to it?
-                showSystemMessage({
-                    title: "Successfully uploaded!",
-                    type: "success",
-                })
+                if (response?.exists) {
+                    showSystemMessage({
+                        title: "Already exists!",
+                        type: "error",
+                    })
+                } else {
+                    showSystemMessage({
+                        title: "Successfully uploaded!",
+                        type: "success",
+                    })
+                }
             }
             console.log(response)
         },
@@ -113,7 +173,7 @@ async function uploadGIF(error = null) {
         if (!value) return;
 
         // if we used all tags dont add them to the ui
-        if(tagContainer.querySelectorAll(".tag-bubble").length >= Number("{{max_tags}}")) return;
+        if (tagContainer.querySelectorAll(".tag-bubble").length >= Number("{{max_tags}}")) return;
 
         // update hint
         document.getElementById("tag-length-info").innerText =
@@ -137,10 +197,10 @@ async function uploadGIF(error = null) {
     });
 }
 
-async function diplayTrendingGIFs(timestamp = null, limit = null) {
-    let gifResponse = await API.GIFS.getPopularGIFs(timestamp, limit);
-    let gifs = gifResponse?.gifs;
-    if(gifs?.length === 0) return;
+async function displayTrendingGIFs(suppliedGifs = null, timestamp = null, limit = null) {
+    let gifResponse = suppliedGifs ? null : await API.GIFS.getPopularGIFs(timestamp, limit);
+    let gifs = suppliedGifs || gifResponse?.gifs;
+    if (gifs?.length === 0) return console.warn("Gifs length was 0");
 
     getContentContainer().innerHTML = `
         <h2>Popular GIFs</h2>
@@ -148,14 +208,95 @@ async function diplayTrendingGIFs(timestamp = null, limit = null) {
 
     let trendingContainer = getContentContainer().querySelector(".trending-gifs-container");
 
-    for(let gif of gifs) {
-        console.log(gif)
+    for (let gif of gifs) {
         trendingContainer.insertAdjacentHTML("beforeend", getGifEntryHTML(gif));
     }
 
-    function getGifEntryHTML(gifObj){
+    function getGifEntryHTML(gifObj) {
         return `
-        <img class="gif-entry" draggable="false" src="/upload/${gifObj.fileHash}_preview"></img>
+        <img data-hash="${gifObj.fileHash}" class="gif-entry" draggable="false" src="/upload/${gifObj.fileHash}_preview"></img>
         `
     }
+}
+
+async function viewGIF(hash) {
+    if(!hash) throw new Error("hash is missing");
+
+    let gifRes = await fetch(`/resource/${hash}`)
+    let gif;
+    if(gifRes.ok) gif = await gifRes.json();
+
+    let uploaderId = Number(gif.accountId);
+    let isAnonymous = uploaderId === 0
+
+    console.log(gif)
+
+    customPrompt.showPrompt(
+        "View GIF",
+        `
+            <div class="gif-view-container">
+                <div class="gif-view">
+                    <img data-hash="${hash}" src="/upload/${hash}_medium"></img>
+                </div>          
+                
+                <div class="gif-info-container">
+                
+                    <div class="media_variants">
+                        <button class="original" onclick="changeGifPreviewFromViewer(this)">Original</button>
+                        <button class="medium" onclick="changeGifPreviewFromViewer(this)">Medium</button>
+                        <button class="preview" onclick="changeGifPreviewFromViewer(this)">Preview</button>
+                    </div>
+                
+                    <p>Uploaded by: ${isAnonymous ? "Guest" : "User"}</p>
+                    
+                    <p>Tags:</p>
+                    <div class="tags">                        
+                        ${gif.tags
+                            .split(",")
+                            .map(tag => `<span class="tag">${tag}</span>`)
+                            .join("")
+                        }
+                    </div>
+                </div>      
+            
+            </div>
+        `,
+        null,
+            ["Close", "normal"]
+        )
+}
+
+function changeGifPreviewFromViewer(element){
+    let gifViewContainer = element.closest(".gif-view-container")
+    if(!gifViewContainer) return console.error("Didnt find parent container");
+
+    let imagePreview = gifViewContainer.querySelector(".gif-view img")
+    if(!imagePreview) return console.error("Didnt find image");
+
+    let hash = findAttributeUp(imagePreview, "data-hash", 3);
+    if(!hash) return console.error("Didnt find hash");
+
+    imagePreview.src = getGifMediaVariantUrl(hash, element.classList[0]);
+
+    try{
+        navigator.clipboard.writeText(getGifMediaVariantUrl(hash, element.classList[0]));
+        showSystemMessage({
+            title: "Link saved to clipboard!",
+            text: `Using ${element.classList[0]} quality`,
+            type: "success"
+        })
+    }
+    catch(err){
+        showSystemMessage({
+            title: "Couldnt copy url :/",
+        })
+    }
+}
+
+function getGifMediaVariantUrl(hash, variant){
+    if(!hash) throw new Error("hash is missing");
+
+    if(variant === "medium") return `/upload/${hash}_medium`;
+    if(variant === "preview") return `/upload/${hash}_preview`;
+    if(variant === "original") return `/upload/${hash}`;
 }

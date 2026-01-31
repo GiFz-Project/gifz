@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/css/themes/default.css?v={{version}}">
 
     <link rel="stylesheet" href="/css/gifs.css?v={{version}}">
+    <link rel="stylesheet" href="/css/gif_viewer.css?v={{version}}">
     <link rel="stylesheet" href="/style.css?v={{version}}">
 
     <!-- Core Libs etc -->
@@ -57,11 +58,60 @@
     let customPrompt = new Prompt();
 
     document.addEventListener("DOMContentLoaded", async () => {
-        diplayTrendingGIFs()
+        ContextMenu.init();
+
+        displayTrendingGIFs()
+        registerGifContext()
     })
+
+    function findAttributeUp(element, attr, maxDepth = 10) {
+        for (let i = 0; i <= maxDepth && element; i++) {
+            const val = element.getAttribute?.(attr);
+            if (val !== null) return val;
+            element = element.parentNode;
+        }
+        return null;
+    }
+
+    function extractHost(url){
+        if(!url) return null;
+        const s = String(url).trim();
+
+        const looksLikeBareIPv6 = !s.includes('://') && !s.includes('/') && s.includes(':') && /^[0-9A-Fa-f:.]+$/.test(s);
+        const withProto = looksLikeBareIPv6 ? `https://[${s}]` : (s.includes('://') ? s : `https://${s}`);
+
+        try {
+            const u = new URL(withProto);
+            const host = u.hostname; // IPv6 returned without brackets
+            const port = u.port;
+            if (host.includes(':')) {
+                return port ? `[${host}]:${port}` : host;
+            }
+            return port ? `${host}:${port}` : host;
+        } catch (e) {
+            const re = /^(?:https?:\/\/)?(?:[^@\/\n]+@)?([^:\/?#]+)(?::(\d+))?(?:[\/?#]|$)/i;
+            const m = s.match(re);
+            if (!m) return null;
+            const hostname = m[1].replace(/^\[(.*)\]$/, '$1');
+            const port = m[2];
+            if (hostname.includes(':')) return port ? `[${hostname}]:${port}` : hostname;
+            return port ? `${hostname}:${port}` : hostname;
+        }
+    }
+
+    function truncateString(str, len){
+        str = String(str);
+        if (str.length <= len) return str;
+        return str.substring(0, len) + "...";
+    }
+
 
     function getContentContainer(){
         return document.querySelector(".layout .content");
+    }
+
+    function getSearchInput(){
+        return document.querySelector(".layout .search input");
     }
 </script>
 

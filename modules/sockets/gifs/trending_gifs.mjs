@@ -2,7 +2,7 @@ import dSyncRateLimit from "@hackthedev/dsync-ratelimit";
 import {starter} from "../../../index.mjs";
 import DateTools from "@hackthedev/datetools";
 import {config} from "../../functions/configHelper.mjs";
-import {getPopularGIFS, searchPopularGifs} from "../../functions/gifHelper.mjs";
+import {getGifByHash, getPopularGIFS, searchPopularGifs} from "../../functions/gifHelper.mjs";
 
 const rateLimiter = new dSyncRateLimit({
     windowMs: (60_000 * 10),
@@ -50,6 +50,21 @@ starter.app.get(
 
         let popularGifs = await getPopularGIFS(limit, timestamp);
         return res.status(200).json({error: null, gifs: popularGifs});
+    }
+);
+
+starter.app.get(
+    "/resource/:hash",
+    rateLimiter.middleware({
+        getIpLimit: async () => config.ratelimits.gifs.search.ip,
+        getTotalLimit: async () => config.ratelimits.gifs.search.total,
+        getBlockUntil: async () => DateTools.getDateFromOffset(config.ratelimits.gifs.search.block_duration)
+    }),
+    async (req, res) => {
+        const {hash} = req.params;
+
+        let gif = await getGifByHash(hash);
+        return res.status(200).json({error: null, ...gif});
     }
 );
 

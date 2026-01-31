@@ -1,0 +1,48 @@
+#promptContainer .gif-view-container{
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    flex-wrap: wrap;
+    max-width: 1000px;
+}
+
+#promptContainer .gif-info-container{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+
+    flex-shrink: 1;
+    max-width: calc(1000px - 300px - 1rem);
+    overflow: auto;
+}
+
+#promptContainer .gif-info-container .media_variants{
+    display: flex;
+    flex-direction: row;
+    width: fit-content;
+}
+#promptContainer .gif-info-container .media_variants button{
+    padding: 6px 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#promptContainer .gif-view{
+    display: flex;
+    max-width: 300px !important;
+    max-height: 300px !important;
+    overflow: hidden;
+}
+
+#promptContainer .gif-view-container .gif-view img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#promptContainer .gif-view-container .tags{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+}

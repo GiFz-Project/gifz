@@ -89,6 +89,13 @@ export async function processResourceViews(rowId, limit = 1000){
     return count;
 }
 
+export async function getGifByHash(hash){
+    if(!hash) throw new Error("Hash not specified");
+
+    let gifRow = await db.queryDatabase(`SELECT * FROM resources WHERE fileHash = ?`, [hash]);
+    if(gifRow?.length === 0) return null;
+    return gifRow[0];
+}
 
 export async function getPopularGIFS(limit = 50, timestamp = null) {
     const where = [
