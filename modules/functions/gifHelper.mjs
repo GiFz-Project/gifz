@@ -1,6 +1,7 @@
 import {db} from "../../index.mjs";
+import {config} from "./configHelper.mjs";
 
-export async function getPopularGIFS(timestamp = null) {
+export async function getPopularGIFS(limit = 50, timestamp = null) {
     const where = [
         "IsBlocked = 0",
         "status = 'verified'",
@@ -14,12 +15,17 @@ export async function getPopularGIFS(timestamp = null) {
         params.push(timestamp);
     }
 
+    // max limit
+    if(Number(limit) > config.ratelimits.gifs.search.max_amount)
+        limit = config.ratelimits.gifs.search.max_amount;
+
     const gifs = await db.queryDatabase(
         `
         SELECT *
         FROM resources
         WHERE ${where.join(" AND ")}
         ORDER BY views DESC
+        LIMIT ${limit}
         `,
         params
     );
@@ -27,7 +33,7 @@ export async function getPopularGIFS(timestamp = null) {
     return gifs;
 }
 
-export async function searchPopularGifs(search, timestamp = null) {
+export async function searchPopularGifs(search, limit= 50, timestamp = null) {
     if (!search || !search.length) return await getPopularGIFS(timestamp);
 
     const tagClauses = search.map(() =>
@@ -48,12 +54,17 @@ export async function searchPopularGifs(search, timestamp = null) {
         params.push(timestamp);
     }
 
+    // max limit
+    if(Number(limit) > config.ratelimits.gifs.search.max_amount)
+        limit = config.ratelimits.gifs.search.max_amount;
+
     const gifs = await db.queryDatabase(
         `
         SELECT *
         FROM resources
         WHERE ${where.join(" AND ")}
         ORDER BY views DESC
+        LIMIT ${limit}
         `,
         params
     );

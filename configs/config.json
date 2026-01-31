@@ -16,8 +16,12 @@
             "search": {
                 "ip": 50,
                 "total": 20000,
-                "block_duration": "20 minutes"
+                "block_duration": "20 minutes",
+                "max_amount": 50
             }
         }
+    },
+    "uploads": {
+        "default_status": "pending"
     }
 }

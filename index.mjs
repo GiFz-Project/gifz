@@ -166,7 +166,7 @@ async function initMain() {
             ]
         },
         getExtensions: async (req) => {
-            return ['.html', '.js', ]
+            return ['.html', '.js',]
         }
     });
 
@@ -222,8 +222,58 @@ async function initUploadHandle() {
             },
 
             canUpload: async (req) => {
-                return true;
+                const tags = req?.tags;
+
+                if(!tags) return false;
+
+                return true
             },
+
+            onFinish: async (req, file) => {
+                let accountId = req?.accountId;
+                const token = req?.token;
+                const rawTags = req?.tags;
+
+                if (!accountId) accountId = 0;
+                if (accountId && !token) accountId = 0;
+                if (accountId && token) {
+                    // todo: check auth for crediting
+                }
+
+                const ext = file.ext?.toLowerCase();
+                const mime = file.mimeType?.toLowerCase();
+
+                let insertType = "unknown";
+                if (ext === "gif" || mime === "image/gif") {
+                    insertType = "gif";
+                }
+
+                let tags = null;
+
+                if (rawTags) {
+                    tags = rawTags
+                        .split(",")
+                        .map(t => dFiles.sanitizeFilename(t).toLowerCase())
+                        .filter(Boolean)
+                        .slice(0, 20)
+                        .join(",");
+                }
+
+                await db.queryDatabase(
+                    `
+                        INSERT INTO resources (fileHash, type, accountId, tags, created, status)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    `,
+                    [
+                        file.hash,
+                        insertType,
+                        accountId,
+                        tags,
+                        new Date().getTime(),
+                        config.uploads.default_status
+                    ]
+                );
+            }
         }
     });
 
