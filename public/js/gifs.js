@@ -55,6 +55,10 @@ async function uploadGIF(error = null) {
 
             if(response?.ok && response?.path){
                 // navigate to it?
+                showSystemMessage({
+                    title: "Successfully uploaded!",
+                    type: "success",
+                })
             }
             console.log(response)
         },
