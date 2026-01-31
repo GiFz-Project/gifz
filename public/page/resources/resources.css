@@ -1,0 +1,13 @@
+.sql-table{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sql-table td{
+    padding: 6px 8px;
+}
+
+.sql-table td:first-child{
+    opacity: 0.7;
+    white-space: nowrap;
+}

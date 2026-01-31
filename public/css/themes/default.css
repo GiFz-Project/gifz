@@ -1,6 +1,7 @@
 :root {
     --main: #131415;
-    --accent: hsl(from var(--main) calc(h * 2.3) calc(s * 14) calc(l * 5));
+    /* --accent: hsl(from var(--main) calc(h * 2.3) calc(s * 14) calc(l * 5)); green */
+    --accent: hsl(from var(--main) h s calc(l * 1));
 }
 
 html,
