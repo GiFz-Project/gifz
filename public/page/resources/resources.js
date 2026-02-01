@@ -1,69 +1,64 @@
 document.addEventListener("pagechange", e => {
     console.log(e.detail.page);
-    if (e.detail.page !== "banlist") return;
+    if (e.detail.page !== "resources") return;
 
     initResourceList();
 });
 
+async function getResources(timestamp = null){
+    let response = await fetch(`/resources/list${timestamp ? `/${timestamp}` : ""}`);
+    if(response.status === 200){
+        let json = await response.json();
+        return json.resources;
+    }
+    else{
+        console.log(response);
+        return null
+    }
+}
+
 async function initResourceList(){
-
+    let resources = await getResources();
+    console.log(resources)
+    if(resources) renderResourceRow(resources);
 }
 
-function renderResourceRow(resource){
-    if (!resource) return "";
+function renderResourceRow(resources){
+    if (!resources || !resources.length) return;
 
-    return `
-        <table class="sql-table">
-            <tbody>
-                <tr>
-                    <td>Row ID</td>
-                    <td>${resource.rowId}</td>
-                </tr>
-                <tr>
-                    <td>File Hash</td>
-                    <td>${resource.fileHash}</td>
-                </tr>
-                <tr>
-                    <td>Type</td>
-                    <td>${resource.type}</td>
-                </tr>
-                <tr>
-                    <td>Status</td>
-                    <td>${resource.status}</td>
-                </tr>
-                <tr>
-                    <td>Views</td>
-                    <td>${resource.views}</td>
-                </tr>
-                <tr>
-                    <td>Tags</td>
-                    <td>${resource.tags}</td>
-                </tr>
-                <tr>
-                    <td>Blocked</td>
-                    <td>${resource.isBlocked ? "Yes" : "No"}</td>
-                </tr>
-                <tr>
-                    <td>NSFW</td>
-                    <td>${resource.isNSFW ? "Yes" : "No"}</td>
-                </tr>
-                <tr>
-                    <td>Sensitive</td>
-                    <td>${resource.isSensitive ? "Yes" : "No"}</td>
-                </tr>
-                <tr>
-                    <td>Account ID</td>
-                    <td>${resource.accountId ?? "Guest"}</td>
-                </tr>
-                <tr>
-                    <td>Host</td>
-                    <td>${resource.host ?? "-"}</td>
-                </tr>
-                <tr>
-                    <td>Created</td>
-                    <td>${new Date(resource.created).toLocaleString()}</td>
-                </tr>
-            </tbody>
-        </table>
+    let html = `
+        <div>
+            <table class="sql-table">
+                <thead>
+                    <tr>
+                        <th>File Hash</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Host</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
     `;
+
+    for (let resource of resources) {
+        html += `
+            <tr>
+                <td>${truncateString(resource.fileHash, 10)}</td>
+                <td>${resource.type}</td>
+                <td>${resource.status}</td>
+                <td>${resource.host ?? "-"}</td>
+                <td>&times;</td>
+            </tr>
+        `;
+    }
+
+    html += `
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    getAccountContentElement().innerHTML += html;
 }
+

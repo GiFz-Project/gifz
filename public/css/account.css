@@ -86,8 +86,11 @@
 #accountPopup .account-layout .content{
     display: flex;
     flex-direction: column;
-    flex-wrap: wrap;
     flex-grow: 1;
+
+    max-width: calc(100% - 250px - 20px);
+    height: 100%;
+
 
     overflow: auto;
 }

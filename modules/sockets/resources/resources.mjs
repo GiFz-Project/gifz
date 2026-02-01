@@ -1,7 +1,7 @@
 import {starter} from "../../../index.mjs";
 import {getResources} from "../../functions/resources.mjs";
 
-starter.app.get("/resources{/:timestamp}", async (req, res) => {
+starter.app.get("/resources/list{/:timestamp}", async (req, res) => {
     try {
         const timestamp = req.params.timestamp
             ? Number(req.params.timestamp)

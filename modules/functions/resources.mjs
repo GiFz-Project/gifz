@@ -1,3 +1,5 @@
+import {db} from "../../index.mjs";
+
 export async function getResources(timestamp = null, limit = 100) {
     const where = [];
     const params = [];
