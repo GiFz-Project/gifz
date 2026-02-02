@@ -40,7 +40,7 @@ export async function isAdmin(req){
         ? authHeader.slice(7)
         : null;
 
-    if(!userName || token) return false;
+    if(!userName || !token) return false;
 
     let account = await getAccountFromDbByIdOrName(userName);
     if(!account) return false;

@@ -1,4 +1,22 @@
 class API {
+    static ACCOUNT = class{
+        static PERMISSION = class{
+            static async check(perm){
+                if (!perm)
+                    throw new Error("perm was not supplied ")
+
+                let response = await fetch(`/permission/check/${perm}`,
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${User.Auth.get().token}`,
+                            "X-User-Name": User.Auth.get().name
+                        }
+                    });
+                if (response.status !== 200) throw new Error(response.statusText);
+                return response.json();
+            }
+        }
+    }
 
     static RESOURCES = class {
         static async Search(hash) {

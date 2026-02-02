@@ -28,15 +28,15 @@ const register_limit = new dSyncRateLimit({
     }
 });
 
-starter.app.post("/permission/check/:perm", starter.express.json(), async (req, res) => {
+starter.app.get("/permission/check/:perm", starter.express.json(), async (req, res) => {
     try {
         const { perm } = req.params;
 
         if (!perm)
-            return res.status(400).json({ error: "Missing perm parameter" })
+            return res.status(400).json({ error: "Missing perm parameter", check: false })
 
         // admins have all perms, always
-        if(await isAdmin(req)) return res.status(200).json({ error: null})
+        if(await isAdmin(req)) return res.status(200).json({ error: null, check: true})
 
 
         // todo: actual perm check eventually
@@ -44,6 +44,7 @@ starter.app.post("/permission/check/:perm", starter.express.json(), async (req, 
 
         return res.status(200).json({
             error: null,
+            check: false
         });
 
     } catch (err) {
