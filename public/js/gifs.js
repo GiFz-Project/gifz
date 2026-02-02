@@ -202,16 +202,16 @@ async function uploadGIF(error = null) {
 async function displayNewGIFs(){
     let newGifResponse = await API.GIFS.getNewGIFs();
     if(!newGifResponse?.gifs) throw new Error("No GIFs found");
-    displayTrendingGIFs(newGifResponse.gifs);
+    displayTrendingGIFs(newGifResponse.gifs, "New GIFs");
 }
 
-async function displayTrendingGIFs(suppliedGifs = null, timestamp = null, limit = null) {
+async function displayTrendingGIFs(suppliedGifs = null, headline = "Popular GIFs", timestamp = null, limit = null) {
     let gifResponse = suppliedGifs ? null : await API.GIFS.getPopularGIFs(timestamp, limit);
     let gifs = suppliedGifs || gifResponse?.gifs;
     if (gifs?.length === 0) return console.warn("Gifs length was 0");
 
     getContentContainer().innerHTML = `
-        <h2>Popular GIFs</h2>
+        <h2>${headline}</h2>
         <div class='trending-gifs-container'></div>`;
 
     let trendingContainer = getContentContainer().querySelector(".trending-gifs-container");

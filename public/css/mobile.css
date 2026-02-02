@@ -1,0 +1,13 @@
+@media (max-width: 1000px) {
+    .layout{
+        margin: 4px 8px;
+        width: calc(100% - 16px);
+    }
+
+    .layout .content .trending-gifs-container{
+        column-count: 2;
+        column-gap: 12px;
+        height: auto;
+        width: 100%;
+    }
+}

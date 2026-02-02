@@ -28,8 +28,7 @@ body {
 }
 
 
-
-*{
+* {
     box-sizing: border-box;
 
     scroll-behavior: smooth;
@@ -44,38 +43,41 @@ a {
     font-style: italic;
 }
 
-.layout .header{
+.layout .header {
     background-color: var(--accent);
     color: hsl(from var(--anti-accent) h s l);
 }
 
-.layout .header .buttons button{
+.layout .header .buttons button {
     background-color: hsl(from var(--anti-accent) h s l);
     color: hsl(from var(--accent) h s calc(l * 1));
 
     border: 1px solid hsl(from var(--main) h s calc(l * 14));
 }
-.layout .search input{
+
+.layout .search input {
     border: 1.5px solid var(--accent);
 }
-.layout .quick-actions span{
+
+.layout .quick-actions span {
     background-color: var(--accent);
     color: hsl(from var(--anti-accent) h s l);
 }
 
-.layout .footer{
+.layout .footer {
     background-color: var(--accent);
     color: hsl(from var(--anti-accent) h s l);
 }
 
-#promptContainer .gif-info-container .media_variants{
+#promptContainer .gif-info-container .media_variants {
     background: linear-gradient(
             90deg,
-            hsl(from var(--main) calc(h * 1.1) calc(s* 18) calc(l * 8)),
-            hsl(from var(--main) calc(h * 1.3) calc(s* 18) calc(l * 8))
+            hsl(from var(--main) calc(h * 1.1) calc(s * 18) calc(l * 8)),
+            hsl(from var(--main) calc(h * 1.3) calc(s * 18) calc(l * 8))
     );
 }
-#promptContainer .gif-info-container .media_variants button{
+
+#promptContainer .gif-info-container .media_variants button {
     background-color: transparent;
     color: hsl(from var(--anti-accent) h s l);
     border: 1px solid hsl(from var(--anti-accent) h s l / 20%);
@@ -84,22 +86,24 @@ a {
 
 /* account.css */
 
-#accountPopup{
+#accountPopup {
     background-color: hsl(from var(--main) h s calc(l * 1) / 80%);
 }
 
-#accountPopup .account-layout{
+#accountPopup .account-layout {
     background-color: hsl(from var(--anti-accent) h s l);
 }
+
 #accountPopup .account-layout .nav {
     background-color: var(--accent);
     color: hsl(from var(--anti-accent) h s l);
 }
-#accountPopup .account-layout .nav details ul li{
+
+#accountPopup .account-layout .nav details ul li {
     background-color: hsl(from var(--anti-accent) h s l);
 }
 
-#accountPopup .account-layout .nav details button{
+#accountPopup .account-layout .nav details button {
     background-color: transparent;
     border: none;
 }
