@@ -26,11 +26,8 @@ async function showAccountPopup(page = null){
     getAccountPopupElement().innerHTML =
         `
         <div class="account-layout">
-            <div class="nav">${getAccountNavHTML()}</div>
-        
-            <div class="content">
-            
-            </div>
+            <div class="nav">${getAccountNavHTML()}</div>        
+            <div class="content"></div>
         </div>
         `
 

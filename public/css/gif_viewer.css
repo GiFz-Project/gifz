@@ -35,15 +35,19 @@
 
 #promptContainer .gif-view{
     display: flex;
-    max-width: 300px !important;
-    max-height: 300px !important;
+    max-width: 300px;
+    max-height: 400px;
+    height: auto;
+
     overflow: hidden;
+    border-radius: 8px;
+    background-color: black;
 }
 
 #promptContainer .gif-view-container .gif-view img{
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 #promptContainer .gif-view-container .tags .tag{
