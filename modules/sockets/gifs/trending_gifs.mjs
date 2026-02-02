@@ -3,10 +3,12 @@ import {starter} from "../../../index.mjs";
 import DateTools from "@hackthedev/datetools";
 import {config} from "../../functions/configHelper.mjs";
 import {getGifByHash, getNewGIFS, getPopularGIFS, searchPopularGifs} from "../../functions/gifHelper.mjs";
+import {isAdmin} from "../../functions/accounts.mjs";
 
 const rateLimiter = new dSyncRateLimit({
     windowMs: (60_000 * 10),
     getBlockUntil: async (req) => {
+        if(await isAdmin(req)) return null;
         return DateTools.getDateFromOffset("10 minutes");
     }
 });
@@ -14,9 +16,18 @@ const rateLimiter = new dSyncRateLimit({
 starter.app.get(
     "/gifs/search/:searchTerm{/:timestamp}{/:limit}",
     rateLimiter.middleware({
-        getIpLimit: async () => config.ratelimits.gifs.search.ip,
-        getTotalLimit: async () => config.ratelimits.gifs.search.total,
-        getBlockUntil: async () => DateTools.getDateFromOffset(config.ratelimits.gifs.search.block_duration)
+        getIpLimit: async (req) => {
+            if(await isAdmin(req)) return 9999;
+            return config.ratelimits.gifs.search.ip
+        },
+        getTotalLimit: async (req) => {
+            if(await isAdmin(req)) return 9999;
+            return config.ratelimits.gifs.search.total
+        },
+        getBlockUntil: async (req) => {
+            if(await isAdmin(req)) return null;
+            return DateTools.getDateFromOffset(config.ratelimits.gifs.search.block_duration)
+        }
     }),
     async (req, res) => {
         const {searchTerm, timestamp, limit} = req.params;
@@ -41,9 +52,18 @@ starter.app.get(
 starter.app.get(
     "/gifs/trending{/:limit}{/:timestamp}",
     rateLimiter.middleware({
-        getIpLimit: async () => config.ratelimits.gifs.search.ip,
-        getTotalLimit: async () => config.ratelimits.gifs.search.total,
-        getBlockUntil: async () => DateTools.getDateFromOffset(config.ratelimits.gifs.search.block_duration)
+        getIpLimit: async (req) => {
+            if(await isAdmin(req)) return 9999;
+            return config.ratelimits.gifs.search.ip
+        },
+        getTotalLimit: async (req) => {
+            if(await isAdmin(req)) return 9999;
+            return config.ratelimits.gifs.search.total
+        },
+        getBlockUntil: async (req) => {
+            if(await isAdmin(req)) return null;
+            return DateTools.getDateFromOffset(config.ratelimits.gifs.search.block_duration)
+        }
     }),
     async (req, res) => {
         const {timestamp, limit} = req.params;
@@ -56,9 +76,18 @@ starter.app.get(
 starter.app.get(
     "/gifs/new{/:limit}{/:timestamp}",
     rateLimiter.middleware({
-        getIpLimit: async () => config.ratelimits.gifs.search.ip,
-        getTotalLimit: async () => config.ratelimits.gifs.search.total,
-        getBlockUntil: async () => DateTools.getDateFromOffset(config.ratelimits.gifs.search.block_duration)
+        getIpLimit: async (req) => {
+            if(await isAdmin(req)) return 9999;
+            return config.ratelimits.gifs.search.ip
+        },
+        getTotalLimit: async (req) => {
+            if(await isAdmin(req)) return 9999;
+            return config.ratelimits.gifs.search.total
+        },
+        getBlockUntil: async (req) => {
+            if(await isAdmin(req)) return 9999;
+            return DateTools.getDateFromOffset(config.ratelimits.gifs.search.block_duration)
+        }
     }),
     async (req, res) => {
         const {timestamp, limit} = req.params;
@@ -71,9 +100,18 @@ starter.app.get(
 starter.app.get(
     "/resource/:hash",
     rateLimiter.middleware({
-        getIpLimit: async () => config.ratelimits.gifs.search.ip,
-        getTotalLimit: async () => config.ratelimits.gifs.search.total,
-        getBlockUntil: async () => DateTools.getDateFromOffset(config.ratelimits.gifs.search.block_duration)
+        getIpLimit: async (req) => {
+            if(await isAdmin(req)) return 9999;
+            return config.ratelimits.gifs.search.ip
+        },
+        getTotalLimit: async (req) => {
+            if(await isAdmin(req)) return 9999;
+            return config.ratelimits.gifs.search.total
+        },
+        getBlockUntil: async (req) => {
+            if(await isAdmin(req)) return 9999;
+            DateTools.getDateFromOffset(config.ratelimits.gifs.search.block_duration)
+        }
     }),
     async (req, res) => {
         const {hash} = req.params;

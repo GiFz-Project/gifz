@@ -131,6 +131,8 @@ const tables = [
             {name: "fileHash", type: "varchar(255) DEFAULT NULL"},
             {name: "status", type: "varchar(255) NOT NULL DEFAULT 'pending'"},
             {name: "created", type: "bigint NOT NULL DEFAULT (UNIX_TIMESTAMP() * 1000)"},
+            {name: "ip", type: "varchar(255) DEFAULT NULL"},
+            {name: "country_code", type: "varchar(255) DEFAULT NULL"},
             //
             {name: "views", type: "bigint NOT NULL DEFAULT 0"},
             {name: "tags", type: "text NOT NULL"},
@@ -303,8 +305,7 @@ async function initUploadHandle() {
                 }
 
                 const tags = req?.query.tags;
-                if(!tags) return false;
-                return true
+                return !!tags;
             },
 
             onFileAccess: async (req) => {
@@ -363,10 +364,13 @@ async function initUploadHandle() {
                         .join(",");
                 }
 
+                let clientIp = ipsec.getClientIp(req);
+                let ipInfo = await ipsec.lookupIP(clientIp);
+
                 await db.queryDatabase(
                     `
-                        INSERT INTO resources (fileHash, type, accountId, tags, created, status)
-                        VALUES (?, ?, ?, ?, ?, ?)
+                        INSERT INTO resources (fileHash, type, accountId, tags, created, status, ip, country_code)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     `,
                     [
                         file.hash,
@@ -374,7 +378,9 @@ async function initUploadHandle() {
                         accountId,
                         tags,
                         new Date().getTime(),
-                        config.uploads.default_status
+                        config.uploads.default_status,
+                        ipInfo?.ip,
+                        ipInfo?.location?.country_code
                     ]
                 );
 

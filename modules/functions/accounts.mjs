@@ -32,6 +32,23 @@ export async function getAccountFromDbByIdOrName(accountId){
     return accountRow[0];
 }
 
+export async function isAdmin(req){
+    const authHeader = req.headers.authorization; // "Bearer <token>"
+    const userName = req.headers["x-user-name"];
+
+    const token = authHeader?.startsWith("Bearer ")
+        ? authHeader.slice(7)
+        : null;
+
+    if(!userName || token) return false;
+
+    let account = await getAccountFromDbByIdOrName(userName);
+    if(!account) return false;
+
+    if(account?.token === token) return true;
+    return false;
+}
+
 export async function updateAccountByIdOrName(accountId, column, value){
     if(!accountId) throw new Error("accountId must be defined");
     if(!column) throw new Error("column must be defined");

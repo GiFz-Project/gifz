@@ -1,11 +1,17 @@
 class API {
 
     static RESOURCES = class {
-        static async Search(hash){
+        static async Search(hash) {
             if (!hash)
                 throw new Error("hash was not supplied in search")
 
-            let response = await fetch(`/resources/search/${hash}`);
+            let response = await fetch(`/resources/search/${hash}`,
+                {
+                    headers: {
+                        "Authorization": `Bearer ${User.Auth.get().token}`,
+                        "X-User-Name": User.Auth.get().name
+                    }
+                });
             if (response.status !== 200) throw new Error(response.statusText);
 
             return response.json();
@@ -18,7 +24,13 @@ class API {
             if (limit && typeof limit !== "number")
                 throw new Error("Limit must be a number (integer)")
 
-            let response = await fetch(`/resources/list${timestamp ? `/${timestamp}` : ""}`)
+            let response = await fetch(`/resources/list${timestamp ? `/${timestamp}` : ""}`,
+                {
+                    headers: {
+                        "Authorization": `Bearer ${User.Auth.get().token}`,
+                        "X-User-Name": User.Auth.get().name
+                    }
+                })
             if (response.status !== 200) throw new Error(response.statusText);
 
             return response.json();
@@ -33,7 +45,13 @@ class API {
             if (limit && typeof limit !== "number")
                 throw new Error("Limit must be a number (integer)")
 
-            let response = await fetch(`/gifs/trending${timestamp ? `/${timestamp}` : ""}${limit ? `/${limit}` : ""}`)
+            let response = await fetch(`/gifs/trending${timestamp ? `/${timestamp}` : ""}${limit ? `/${limit}` : ""}`,
+                {
+                    headers: {
+                        "Authorization": `Bearer ${User.Auth.get().token}`,
+                        "X-User-Name": User.Auth.get().name
+                    }
+                })
             if (response.status !== 200) throw new Error(response.statusText);
 
             return response.json();
@@ -46,7 +64,13 @@ class API {
             if (limit && typeof limit !== "number")
                 throw new Error("Limit must be a number (integer)")
 
-            let response = await fetch(`/gifs/new${timestamp ? `/${timestamp}` : ""}${limit ? `/${limit}` : ""}`)
+            let response = await fetch(`/gifs/new${timestamp ? `/${timestamp}` : ""}${limit ? `/${limit}` : ""}`,
+                {
+                    headers: {
+                        "Authorization": `Bearer ${User.Auth.get().token}`,
+                        "X-User-Name": User.Auth.get().name
+                    }
+                })
             if (response.status !== 200) throw new Error(response.statusText);
 
             return response.json();
@@ -67,7 +91,13 @@ class API {
                 : encodeURIComponent(searchTermArray);
 
             let response = await fetch(
-                `/gifs/search/${searchParam}${timestamp ? `/${timestamp}` : ""}${limit ? `/${limit}` : ""}`
+                `/gifs/search/${searchParam}${timestamp ? `/${timestamp}` : ""}${limit ? `/${limit}` : ""}`,
+                {
+                    headers: {
+                        "Authorization": `Bearer ${User.Auth.get().token}`,
+                        "X-User-Name": User.Auth.get().name
+                    }
+                }
             );
 
             if (response.status !== 200) throw new Error(response.statusText);

@@ -65,15 +65,9 @@ class User {
 
         static get() {
             return {
-                id: localStorage.getItem("id"),
+                name: localStorage.getItem("name"),
                 token: localStorage.getItem("token")
             };
-        }
-        static getName() {
-            return localStorage.getItem("name")
-        }
-        static setId(id) {
-            localStorage.setItem("id", id)
         }
         static setName(name) {
             localStorage.setItem("name", name)

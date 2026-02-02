@@ -268,6 +268,19 @@ async function viewGIF(hash) {
                         ${gif?.isNSFW ? `<span class="nsfw">NSFW</span>` : ""}
                         ${gif?.isSensitive ? `<span class="sensitive">Sensitive</span>` : ""}
                     </div>
+                    
+                    
+                    <div class="admin-actions">
+                        <details open>
+                            <summary>Admin</summary>
+                                <div class="quick-actions-buttons">
+                                    <button>Mark as NSFW</button>
+                                    <button>Mark as Sensitive</button>
+                                    <button>Block this resource</button>
+                                    <button>Delete from storage</button>
+                                </div>
+                            </details>
+                        </div>
                 </div>      
             
             </div>

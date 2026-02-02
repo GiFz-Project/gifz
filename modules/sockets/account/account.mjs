@@ -1,6 +1,6 @@
 import {
     createAccount,
-    getAccountFromDbByIdOrName,
+    getAccountFromDbByIdOrName, isAdmin,
     isAdminAccount,
     isTerminated,
     sanitizeUsername
@@ -13,13 +13,42 @@ import DateTools from "@hackthedev/datetools";
 const register_limit = new dSyncRateLimit({
     windowMs: 60_000,
     getIpLimit: async (req) => {
-        return 2;
+        if(await isAdmin(req)) return 9999;
+        return 3;
     },
 
-    getTotalLimit: async () => 5,
+    getTotalLimit: async (req) => {
+        if(await isAdmin(req)) return 9999;
+        return 5;
+    },
 
     getBlockUntil: async (req) => {
+        if(await isAdmin(req)) return null;
         return DateTools.getDateFromOffset("10 minutes");
+    }
+});
+
+starter.app.post("/permission/check/:perm", starter.express.json(), async (req, res) => {
+    try {
+        const { perm } = req.params;
+
+        if (!perm)
+            return res.status(400).json({ error: "Missing perm parameter" })
+
+        // admins have all perms, always
+        if(await isAdmin(req)) return res.status(200).json({ error: null})
+
+
+        // todo: actual perm check eventually
+
+
+        return res.status(200).json({
+            error: null,
+        });
+
+    } catch (err) {
+        console.error("register error:", err);
+        return res.status(500).json({ error: "Internal server error" });
     }
 });
 
