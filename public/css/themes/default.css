@@ -39,7 +39,7 @@ body {
 }
 
 a {
-    color: hsl(from var(--main) h s calc(l * 1));
+    color: hsl(from var(--accent) h s calc(l * 1));
     font-style: italic;
 }
 
@@ -85,13 +85,15 @@ a {
 
 
 /* account.css */
-
 #accountPopup {
     background-color: hsl(from var(--main) h s calc(l * 1) / 80%);
+    color: hsl(from var(--anti-accent) h s calc(l * 1) / 80%);
 }
 
 #accountPopup .account-layout {
     background-color: hsl(from var(--anti-accent) h s l);
+    color: hsl(from var(--accent) h s l);
+    border: 1px solid hsl(from var(--accent) h s calc(l * 1) / 80%);
 }
 
 #accountPopup .account-layout .nav {
@@ -101,9 +103,11 @@ a {
 
 #accountPopup .account-layout .nav details ul li {
     background-color: hsl(from var(--anti-accent) h s l);
+    color: hsl(from var(--accent) h s l);
 }
 
 #accountPopup .account-layout .nav details button {
     background-color: transparent;
+    color: hsl(from var(--accent) h s l);
     border: none;
 }

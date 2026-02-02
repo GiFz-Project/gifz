@@ -58,8 +58,17 @@ class User {
             return data;
         }
 
-        static isLoggedIn() {
-            return !!this.get();
+        static async loggedIn() {
+
+            const res = await fetch("/login/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...this.get() })
+            });
+
+            const data = await res.json();
+            if (!res.ok || data.error) throw new Error(data.error || "Login failed");
+            return data.result;
         }
 
         static get() {

@@ -9,6 +9,17 @@ function registerAccountContext(){
             if(page) loadPageContent(page, getAccountContentElement())
         }
     )
+
+    ContextMenu.registerClickEvent(
+        "account popup closer",
+        [
+            "#accountPopup",
+        ],
+        async (data) => {
+            if(getAccountLayoutElement().contains(data.element)) return;
+            hideAccountPopup()
+        }
+    )
 }
 
 async function showAccountPopup(page = null){

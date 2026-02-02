@@ -40,7 +40,7 @@
 
         <div class="buttons">
             <button class="upload" onclick="uploadGIF()">Upload</button>
-            <button class="login">Login</button>
+            <button class="login" onclick="checkAccountPage()">Login</button>
         </div>
     </div>
 
@@ -75,6 +75,17 @@
         //showAccountPopup("resources");
         //viewGIF("bd6e0ec296ae62eac09436bca226af48b4fcf1128ea27bc325ca2a2318956048")
     })
+
+    async function checkAccountPage(){
+        let isLoggedIn = await User.Auth.loggedIn();
+        console.log(isLoggedIn)
+        if(isLoggedIn){
+            showAccountPopup();
+        }
+        else{
+            // show login
+        }
+    }
 
     function findAttributeUp(element, attr, maxDepth = 10) {
         for (let i = 0; i <= maxDepth && element; i++) {

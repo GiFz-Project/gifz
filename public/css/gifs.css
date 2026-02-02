@@ -74,7 +74,7 @@
     break-inside: avoid;
 
     border-radius: 8px;
-    border: 1px solid hsl(from var(--main) h s calc(l * 1) / 40%);
+    border: 1px solid hsl(from var(--accent) h s l / 40%);
 }
 .layout .content .trending-gifs-container .gif-entry-wrapper .notice {
     position: absolute;

@@ -3,7 +3,7 @@ import {
     getAccountFromDbByIdOrName, isAdmin,
     isAdminAccount,
     isTerminated,
-    sanitizeUsername
+    sanitizeUsername, validateAccount
 } from "../../functions/accounts.mjs";
 import bcrypt from "bcrypt";
 import {starter} from "../../../index.mjs";
@@ -74,6 +74,26 @@ starter.app.post("/register", starter.express.json(), async (req, res) => {
 
     } catch (err) {
         console.error("register error:", err);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+starter.app.post("/login/verify", starter.express.json(), async (req, res) => {
+    try {
+        const { name, token } = req.body;
+
+        if (!name || !token)
+            return res.status(400).json({ error: "Missing name or password" });
+
+       let result = await validateAccount(sanitizeUsername(name), token)
+
+        return res.status(200).json({
+            error: null,
+            result
+        });
+
+    } catch (err) {
+        console.error("login error:", err);
         return res.status(500).json({ error: "Internal server error" });
     }
 });
