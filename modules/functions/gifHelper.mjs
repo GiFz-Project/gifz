@@ -2,6 +2,7 @@ import {db} from "../../index.mjs";
 import {config} from "./configHelper.mjs";
 import Logger from "@hackthedev/terminal-logger"
 import DateTools from "@hackthedev/datetools";
+import {isAdmin} from "./accounts.mjs";
 
 let startedViewJob = false;
 
@@ -38,6 +39,15 @@ export async function runResourceViewJob(skipInterval = false, intervalMs = 5 * 
             console.error("runResourceViewJob error:", err);
         }
     }
+}
+
+export async function getSafeResource(req, resource){
+    resource = structuredClone(resource)
+    if(!await isAdmin(req)){
+        if(resource.hasOwnProperty("ip")) delete resource.ip
+        if(resource.hasOwnProperty("country_code")) delete resource.country_code
+    }
+    return resource;
 }
 
 export async function addResourceView(rowId, country_code){

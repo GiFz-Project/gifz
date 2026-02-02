@@ -2,7 +2,13 @@ import dSyncRateLimit from "@hackthedev/dsync-ratelimit";
 import {starter} from "../../../index.mjs";
 import DateTools from "@hackthedev/datetools";
 import {config} from "../../functions/configHelper.mjs";
-import {getGifByHash, getNewGIFS, getPopularGIFS, searchPopularGifs} from "../../functions/gifHelper.mjs";
+import {
+    getGifByHash,
+    getNewGIFS,
+    getPopularGIFS,
+    getSafeResource,
+    searchPopularGifs
+} from "../../functions/gifHelper.mjs";
 import {isAdmin} from "../../functions/accounts.mjs";
 
 const rateLimiter = new dSyncRateLimit({
@@ -44,6 +50,9 @@ starter.app.get(
         const lim = limit ? Number(limit) : null;
 
         let popularGifs = await searchPopularGifs(search, ts, lim);
+        for(let gif of popularGifs) {
+            gif = await getSafeResource(req, gif);
+        }
 
         return res.status(200).json({error: null, gifs: popularGifs});
     }
@@ -69,6 +78,10 @@ starter.app.get(
         const {timestamp, limit} = req.params;
 
         let popularGifs = await getPopularGIFS(limit, timestamp);
+        popularGifs = await Promise.all(
+            popularGifs.map(gif => getSafeResource(req, gif))
+        );
+
         return res.status(200).json({error: null, gifs: popularGifs});
     }
 );
@@ -93,6 +106,10 @@ starter.app.get(
         const {timestamp, limit} = req.params;
 
         let newGifs = await getNewGIFS(limit, timestamp);
+        newGifs = await Promise.all(
+            newGifs.map(gif => getSafeResource(req, gif))
+        );
+
         return res.status(200).json({error: null, gifs: newGifs});
     }
 );
@@ -117,6 +134,7 @@ starter.app.get(
         const {hash} = req.params;
 
         let gif = await getGifByHash(hash);
+        gif = getSafeResource(req, gif);
         return res.status(200).json({error: null, ...gif});
     }
 );

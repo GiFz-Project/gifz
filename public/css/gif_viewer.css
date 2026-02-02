@@ -17,10 +17,15 @@
     gap: 1rem;
 }
 
+#promptContainer .gif-info-container .media_variants_hint{
+    font-size: 12px;
+    text-transform: uppercase;
+}
 #promptContainer .gif-info-container .media_variants{
     display: flex;
     flex-direction: row;
     width: fit-content;
+    margin-top: 4px;
 }
 #promptContainer .gif-info-container .media_variants button{
     padding: 6px 8px;

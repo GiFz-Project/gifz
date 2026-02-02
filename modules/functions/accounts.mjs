@@ -45,7 +45,7 @@ export async function isAdmin(req){
     let account = await getAccountFromDbByIdOrName(userName);
     if(!account) return false;
 
-    if(account?.token === token) return true;
+    if(account?.token === token && account?.isAdmin) return true;
     return false;
 }
 

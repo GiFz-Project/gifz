@@ -234,6 +234,7 @@ async function viewGIF(hash) {
 
     let uploaderId = Number(gif.accountId);
     let isAnonymous = uploaderId === 0
+    let isAdmin = (await API.ACCOUNT.PERMISSION.check("*")).check;
 
     console.log(gif)
 
@@ -245,23 +246,27 @@ async function viewGIF(hash) {
                     <img data-hash="${hash}" src="/upload/${hash}_medium"></img>
                 </div>          
                 
-                <div class="gif-info-container">    
-                    <span>Copy Link</span>            
-                    <div class="media_variants">
-                        <button class="original" onclick="changeGifPreviewFromViewer(this)">Original</button>
-                        <button class="medium" onclick="changeGifPreviewFromViewer(this)">Medium</button>
-                        <button class="preview" onclick="changeGifPreviewFromViewer(this)">Preview</button>
+                <div class="gif-info-container">                        
+                    <div>
+                        <span class="media_variants_hint">Copy Link</span>            
+                        <div class="media_variants">
+                            <button class="original" onclick="changeGifPreviewFromViewer(this)">Original</button>
+                            <button class="medium" onclick="changeGifPreviewFromViewer(this)">Medium</button>
+                            <button class="preview" onclick="changeGifPreviewFromViewer(this)">Preview</button>
+                        </div>
                     </div>
                 
                     <p>Uploaded by: ${isAnonymous ? "Guest" : "User"}</p>
                     
-                    <p style="margin-bottom: 2px;">Tags:</p>
-                    <div class="tags">                        
-                        ${gif.tags
-                            .split(",")
-                            .map(tag => `<span class="tag">${tag}</span>`)
-                            .join("")
-                        }
+                    <div>
+                        <p style="margin-bottom: 2px;">Tags:</p>
+                        <div class="tags">                        
+                            ${gif.tags
+                                    .split(",")
+                                    .map(tag => `<span class="tag">${tag}</span>`)
+                                    .join("")
+                                }
+                        </div>
                     </div>
                     
                     <div class="flags">
@@ -270,7 +275,7 @@ async function viewGIF(hash) {
                     </div>
                     
                     
-                    <div class="admin-actions">
+                    ${isAdmin === true ? `<div class="admin-actions">
                         <details open>
                             <summary>Admin</summary>
                                 <div class="quick-actions-buttons">
@@ -280,7 +285,8 @@ async function viewGIF(hash) {
                                     <button>Delete from storage</button>
                                 </div>
                             </details>
-                        </div>
+                        </div>`
+                    : ""}
                 </div>      
             
             </div>
