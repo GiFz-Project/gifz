@@ -102,9 +102,34 @@
 }
 
 /* admin actions */
+#promptContainer .gif-view-container details{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    max-width: calc(1000px - 300px - 2rem);
+    overflow: auto;
+}
+#promptContainer .gif-view-container .admin-actions .tag-editor{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    margin: 4rem auto;
+    max-width: calc(1000px - 300px - 2rem);
+}
+#promptContainer .gif-view-container .admin-actions .tag-editor button{
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: rgba(34, 197, 34, 0.75);
+    color: white;
+    border: none;
+}
+
+
 #promptContainer .gif-view-container .admin-actions .quick-actions-buttons button{
     padding: 4px 8px;
     border-radius: 4px;
+    cursor: pointer;
 }
 #promptContainer .gif-view-container .admin-actions .quick-actions-buttons button.nsfw{
     background-color: indianred;

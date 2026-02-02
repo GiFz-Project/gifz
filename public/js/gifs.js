@@ -219,8 +219,15 @@ async function displayTrendingGIFs(suppliedGifs = null, timestamp = null, limit 
     }
 
     function getGifEntryHTML(gifObj) {
+
         return `
-        <img data-hash="${gifObj.fileHash}" class="gif-entry" draggable="false" src="/upload/${gifObj.fileHash}_preview"></img>
+            <div class="gif-entry-wrapper">
+                ${gifObj.isNSFW ? `<span class="notice">NSFW</span>` : ""}
+                ${gifObj.isSensitive && !gifObj.isNSFW ? `<span class="notice">Sensitive</span>` : ""}
+                <img data-hash="${gifObj.fileHash}" 
+                    class="gif-entry ${gifObj.isNSFW ? `nsfw` : ""} ${gifObj.isSensitive ? `sensitive` : ""}" 
+                    draggable="false" src="/upload/${gifObj.fileHash}_preview">
+            </div>
         `
     }
 }
@@ -285,22 +292,25 @@ async function viewGIF(hash) {
                     </div>
                     
                     
-                    ${isAdmin === true ? `<div class="admin-actions">
-                        <details open id="admin-controls">
-                            <summary>Admin</summary>
-                                <div class="quick-actions-buttons">
-                                    <button class="nsfw" onclick="viewGIF.setNSFW(${!isNSFW})">${isNSFW ? "Unmark" : "Mark"} as NSFW</button>
-                                    <button class="sensitive" onclick="viewGIF.setSensitive(${!isSensitive})">${isSensitive ? "Unmark" : "Mark"} as Sensitive</button>
-                                    <button class="blocked" onclick="viewGIF.setBlocked(${!isBlocked})">${isBlocked ? "Unblock" : "Block"} this resource</button>
-                                    <button onclick="viewGIF.deleteResource('${hash}')">Delete from storage</button>
-                                </div>
+                    ${isAdmin === true ? `
+                        <div class="admin-actions">
+                            <details open id="admin-controls">     
+                                <summary>Admin</summary>
+                                    <div class="quick-actions-buttons">
+                                        <button class="nsfw" onclick="viewGIF.setNSFW(${!isNSFW})">${isNSFW ? "Unmark" : "Mark"} as NSFW</button>
+                                        <button class="sensitive" onclick="viewGIF.setSensitive(${!isSensitive})">${isSensitive ? "Unmark" : "Mark"} as Sensitive</button>
+                                        <button class="blocked" onclick="viewGIF.setBlocked(${!isBlocked})">${isBlocked ? "Unblock" : "Block"} this resource</button>
+                                        <button onclick="viewGIF.deleteResource('${hash}')">Delete from storage</button>
+                                    </div>
+                                    
                                 
-                                
-                                <div id="tag-container" style="width: 100%;"></div>
-                                    <input id="tag-input" type="text" placeholder="type tag and press enter">
-                                    <label id="tag-length-info"></label><br>
-                                    <button id="saveTags">Save tags</button>
-                                </div>
+                                    <div class="tag-editor">
+                                        <label>Edit Tags</label>
+                                        <div id="tag-container" style="width: 100%;"></div>
+                                        <input id="tag-input" type="text" placeholder="type tag and press enter">
+                                        <label id="tag-length-info"></label><br>
+                                        <button id="saveTags">Save tags</button>
+                                    </div>
                             </details>
                         </div>`
                     : ""}
@@ -358,7 +368,7 @@ async function viewGIF(hash) {
                 .join(",");
 
             await API.RESOURCES.Update(hash, "tags", tags);
-            console.log(tags)
+            refreshView()
         }
 
         function updateTagInfo() {

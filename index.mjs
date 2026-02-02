@@ -396,8 +396,8 @@ async function initUploadHandle() {
                         tags,
                         new Date().getTime(),
                         config.uploads.default_status,
-                        ipInfo?.ip,
-                        ipInfo?.location?.country_code
+                        ipInfo?.ip || "unkown",
+                        ipInfo?.location?.country_code || "unkown"
                     ]
                 );
 
