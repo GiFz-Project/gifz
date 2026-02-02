@@ -9,11 +9,12 @@ import dSyncIPSec from "@hackthedev/dsync-ipsec"
 import path from "path"
 import fs from "fs"
 import {getConfigObject} from "./modules/functions/configHelper.mjs";
-import {addResourceView, runResourceViewJob} from "./modules/functions/gifHelper.mjs";
+import {addResourceView, getGifByHash, getSafeResource, runResourceViewJob} from "./modules/functions/gifHelper.mjs";
 import {getCache, setCache} from "./modules/functions/cache.mjs";
 import {runTranscodingJob} from "./modules/functions/transcoding.mjs";
 import dSyncRateLimit from "@hackthedev/dsync-ratelimit";
 import DateTools from "@hackthedev/datetools";
+import {isAdmin} from "./modules/functions/accounts.mjs";
 
 console.clear();
 
@@ -269,16 +270,31 @@ async function initUploadHandle() {
         limits: {
             getMaxMB: async (req) => {
                 const r = await ipsec.checkRequest(req);
-                if (!r.allow) return false;
+                if (!r.allow && !await isAdmin(req)) return false;
 
+                if(await isAdmin(req)) return Infinity;
                 return 15;
             },
 
             getMaxFolderSizeMB: async (req) => {
                 const r = await ipsec.checkRequest(req);
-                if (!r.allow) return false;
+                if (!r.allow && !await isAdmin(req)) return false;
 
                 return Number(config.storage.max_size_gb) * 1024; // GB
+            },
+
+            canAccessFiles: async (req) => {
+                if(await isAdmin(req)) return true;
+
+                const r = await ipsec.checkRequest(req);
+                if (!r.allow && !await isAdmin(req)) return false;
+
+                let fileHash = req.params.id.split("_")[0];
+                let gif = await getGifByHash(fileHash);
+
+                if(gif.isBlocked) return false
+                if(gif.status !== "approved") return false
+                return true;
             },
 
             getAllowedMimes: async (req) => {
@@ -294,13 +310,13 @@ async function initUploadHandle() {
 
             canUpload: async (req) => {
                 const r = await ipsec.checkRequest(req);
-                if (!r.allow) return false;
+                if (!r.allow && !await isAdmin(req)) return false;
 
                 // upload rate limit
                 const rUser = file_ratelimits.check(`upload/${ipsec.getClientIp(req)}`,config.ratelimits.gifs.upload.ip);
                 const rTotal = file_ratelimits.check(`upload/total`, config.ratelimits.gifs.upload.total);
 
-                if (!rUser.ok || !rTotal.ok) {
+                if ((!rUser.ok || !rTotal.ok) && !await isAdmin(req)) {
                     return false;
                 }
 
@@ -310,7 +326,7 @@ async function initUploadHandle() {
 
             onFileAccess: async (req) => {
                 const r = await ipsec.checkRequest(req);
-                if (!r.allow) return false;
+                if (!r.allow && !await isAdmin(req)) return false;
 
                 let fileHash = req.params.id.split("_")[0];
 
@@ -318,22 +334,23 @@ async function initUploadHandle() {
                 const rUser = file_ratelimits.check(`file/${fileHash}/${ipsec.getClientIp(req)}`,config.ratelimits.files.access.ip);
                 const rTotal = file_ratelimits.check(`file/${fileHash}/total`, config.ratelimits.files.access.total);
 
-                if (!rUser.ok || !rTotal.ok) {
+                if ((!rUser.ok || !rTotal.ok) && !await isAdmin(req)) {
                     return false;
                 }
 
-                let resourceRow = await db.queryDatabase(`SELECt rowId FROM resources WHERE fileHash = ? AND status='approved'`, [fileHash])
-                if(!resourceRow) return Logger.warn(`${fileHash}: Unable to update views stats`);
+
+                let gif = await getGifByHash(fileHash);
+                if(!gif) console.error("Unable to update views for resource ", fileHash);
 
                 let clientIp = ipsec.getClientIp(req);
                 let ipInfo = await ipsec.lookupIP(clientIp);
 
-                addResourceView(resourceRow[0].rowId, ipInfo?.location?.country_code);
+                addResourceView(gif.rowId, ipInfo?.location?.country_code);
             },
 
             onFinish: async (req, file) => {
                 const r = await ipsec.checkRequest(req);
-                if (!r.allow) return false;
+                if (!r.allow && !await isAdmin(req)) return false;
 
                 let accountId = req?.query?.accountId;
                 const token = req?.query?.token;

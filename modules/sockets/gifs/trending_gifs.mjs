@@ -23,11 +23,11 @@ starter.app.get(
     "/gifs/search/:searchTerm{/:timestamp}{/:limit}",
     rateLimiter.middleware({
         getIpLimit: async (req) => {
-            if(await isAdmin(req)) return 9999;
+            if(await isAdmin(req)) return Infinity;
             return config.ratelimits.gifs.search.ip
         },
         getTotalLimit: async (req) => {
-            if(await isAdmin(req)) return 9999;
+            if(await isAdmin(req)) return Infinity;
             return config.ratelimits.gifs.search.total
         },
         getBlockUntil: async (req) => {
@@ -49,12 +49,12 @@ starter.app.get(
         const ts = timestamp ? Number(timestamp) : null;
         const lim = limit ? Number(limit) : null;
 
-        let popularGifs = await searchPopularGifs(search, ts, lim);
-        for(let gif of popularGifs) {
-            gif = await getSafeResource(req, gif);
-        }
+        let seachGifs = await searchPopularGifs(search, ts, lim);
+        seachGifs = await Promise.all(
+            seachGifs.map(async (gif) => await getSafeResource(req, gif))
+        );
 
-        return res.status(200).json({error: null, gifs: popularGifs});
+        return res.status(200).json({error: null, gifs: seachGifs});
     }
 );
 
@@ -62,11 +62,11 @@ starter.app.get(
     "/gifs/trending{/:limit}{/:timestamp}",
     rateLimiter.middleware({
         getIpLimit: async (req) => {
-            if(await isAdmin(req)) return 9999;
+            if(await isAdmin(req)) return Infinity;
             return config.ratelimits.gifs.search.ip
         },
         getTotalLimit: async (req) => {
-            if(await isAdmin(req)) return 9999;
+            if(await isAdmin(req)) return Infinity;
             return config.ratelimits.gifs.search.total
         },
         getBlockUntil: async (req) => {
@@ -79,7 +79,7 @@ starter.app.get(
 
         let popularGifs = await getPopularGIFS(limit, timestamp);
         popularGifs = await Promise.all(
-            popularGifs.map(gif => getSafeResource(req, gif))
+            popularGifs.map(async (gif) => await getSafeResource(req, gif))
         );
 
         return res.status(200).json({error: null, gifs: popularGifs});
@@ -90,15 +90,15 @@ starter.app.get(
     "/gifs/new{/:limit}{/:timestamp}",
     rateLimiter.middleware({
         getIpLimit: async (req) => {
-            if(await isAdmin(req)) return 9999;
+            if(await isAdmin(req)) return Infinity;
             return config.ratelimits.gifs.search.ip
         },
         getTotalLimit: async (req) => {
-            if(await isAdmin(req)) return 9999;
+            if(await isAdmin(req)) return Infinity;
             return config.ratelimits.gifs.search.total
         },
         getBlockUntil: async (req) => {
-            if(await isAdmin(req)) return 9999;
+            if(await isAdmin(req)) return null;
             return DateTools.getDateFromOffset(config.ratelimits.gifs.search.block_duration)
         }
     }),
@@ -107,38 +107,12 @@ starter.app.get(
 
         let newGifs = await getNewGIFS(limit, timestamp);
         newGifs = await Promise.all(
-            newGifs.map(gif => getSafeResource(req, gif))
+            newGifs.map(async (gif) => await getSafeResource(req, gif))
         );
 
         return res.status(200).json({error: null, gifs: newGifs});
     }
 );
-
-starter.app.get(
-    "/resource/:hash",
-    rateLimiter.middleware({
-        getIpLimit: async (req) => {
-            if(await isAdmin(req)) return 9999;
-            return config.ratelimits.gifs.search.ip
-        },
-        getTotalLimit: async (req) => {
-            if(await isAdmin(req)) return 9999;
-            return config.ratelimits.gifs.search.total
-        },
-        getBlockUntil: async (req) => {
-            if(await isAdmin(req)) return 9999;
-            DateTools.getDateFromOffset(config.ratelimits.gifs.search.block_duration)
-        }
-    }),
-    async (req, res) => {
-        const {hash} = req.params;
-
-        let gif = await getGifByHash(hash);
-        gif = getSafeResource(req, gif);
-        return res.status(200).json({error: null, ...gif});
-    }
-);
-
 
 export default (io) => (socket) => {
 }

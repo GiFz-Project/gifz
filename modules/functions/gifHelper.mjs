@@ -44,6 +44,9 @@ export async function runResourceViewJob(skipInterval = false, intervalMs = 5 * 
 export async function getSafeResource(req, resource){
     resource = structuredClone(resource)
     if(!await isAdmin(req)){
+        if(resource.isBlocked) return null;
+        if(resource.status !== "approved") return null;
+
         if(resource.hasOwnProperty("ip")) delete resource.ip
         if(resource.hasOwnProperty("country_code")) delete resource.country_code
     }
@@ -143,6 +146,22 @@ export async function getNewGIFS(limit = 50, timestamp = null) {
     return gifs;
 }
 
+export async function updateResource(hash, key, value){
+    if(!hash) throw new Error("Hash not specified");
+    if(!key) throw new Error("Key not specified");
+    if(!value) throw new Error("Value not specified");
+
+    let result = await db.queryDatabase(
+        `
+        UPDATE resources
+        SET ${key} = ?
+        WHERE fileHash = ?
+        `,
+        [value, hash]
+    );
+
+    return result?.rowsAffected;
+}
 
 export async function getPopularGIFS(limit = 50, timestamp = null) {
     const where = [

@@ -35,6 +35,27 @@ class API {
             return response.json();
         }
 
+        static async Update(hash, key, value){
+            if (!hash)
+                throw new Error("hash was not supplied in Update")
+            if (!key)
+                throw new Error("key was not supplied in Update")
+            if (!value === undefined)
+                throw new Error("value was not supplied in Update")
+
+            const res = await fetch(`/resource/update/${hash}/${key}/${value}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${User.Auth.get().token}`,
+                    "X-User-Name": User.Auth.get().name
+                },
+            });
+
+            const data = await res.json();
+            console.log(data)
+        }
+
         static async List(timestamp = null, limit = null) {
             if (timestamp && typeof timestamp !== "number")
                 throw new Error("Timestamp must be a timestamp (number/integer) in miliseconds!")
@@ -51,6 +72,55 @@ class API {
                 })
             if (response.status !== 200) throw new Error(response.statusText);
 
+            return response.json();
+        }
+
+        static async Get(hash) {
+            if (!hash)
+                throw new Error("hash was not supplied in Update")
+
+            let response = await fetch(`/resource/${hash}`,
+                {
+                    headers: {
+                        "Authorization": `Bearer ${User.Auth.get().token}`,
+                        "X-User-Name": User.Auth.get().name
+                    }
+                })
+            if (response.status !== 200) throw new Error(response.statusText);
+
+            return response.json();
+        }
+
+        static async GetUploadURL(hash) {
+            if (!hash)
+                throw new Error("hash was not supplied");
+
+            let response = await fetch(`/upload/${hash}`, {
+                headers: {
+                    "Authorization": `Bearer ${User.Auth.get().token}`,
+                    "X-User-Name": User.Auth.get().name
+                }
+            });
+
+            if (!response.ok)
+                throw new Error(response.statusText);
+
+            return URL.createObjectURL(await response.blob());
+        }
+
+        static async Delete(hash) {
+            if (!hash)
+                throw new Error("hash was not supplied in Update")
+
+            let response = await fetch(`/resource/delete/${hash}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${User.Auth.get().token}`,
+                        "X-User-Name": User.Auth.get().name
+                    }
+                })
+            if (response.status !== 200) throw new Error(response.statusText);
             return response.json();
         }
     }

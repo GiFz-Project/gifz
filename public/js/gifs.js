@@ -228,22 +228,23 @@ async function displayTrendingGIFs(suppliedGifs = null, timestamp = null, limit 
 async function viewGIF(hash) {
     if(!hash) throw new Error("hash is missing");
 
-    let gifRes = await fetch(`/resource/${hash}`)
-    let gif;
-    if(gifRes.ok) gif = await gifRes.json();
+    let gif = await API.RESOURCES.Get(hash);
+    console.log(gif)
 
     let uploaderId = Number(gif.accountId);
+
     let isAnonymous = uploaderId === 0
     let isAdmin = (await API.ACCOUNT.PERMISSION.check("*")).check;
-
-    console.log(gif)
+    let isNSFW = gif?.isNSFW === 1;
+    let isSensitive = gif?.isSensitive === 1;
+    let isBlocked = gif?.isBlocked === 1;
 
     customPrompt.showPrompt(
         "View GIF",
         `
             <div class="gif-view-container">
                 <div class="gif-view">
-                    <img data-hash="${hash}" src="/upload/${hash}_medium"></img>
+                    <img data-hash="${hash}" src="${await API.RESOURCES.GetUploadURL(`${hash}_medium`)}"></img>
                 </div>          
                 
                 <div class="gif-info-container">                        
@@ -256,7 +257,15 @@ async function viewGIF(hash) {
                         </div>
                     </div>
                 
-                    <p>Uploaded by: ${isAnonymous ? "Guest" : "User"}</p>
+                    <div class="uploader">
+                        <p>Uploaded by: ${isAnonymous ? "Guest" : "User"}</p>
+                        ${
+                            gif?.ip ? `<span>${gif.ip}</span>` : ""
+                        }
+                        ${
+                            gif?.country_code ? `<span>${gif.country_code}</span>` : ""
+                        }
+                    </div>
                     
                     <div>
                         <p style="margin-bottom: 2px;">Tags:</p>
@@ -272,17 +281,25 @@ async function viewGIF(hash) {
                     <div class="flags">
                         ${gif?.isNSFW ? `<span class="nsfw">NSFW</span>` : ""}
                         ${gif?.isSensitive ? `<span class="sensitive">Sensitive</span>` : ""}
+                        ${gif?.isBlocked ? `<span class="blocked">Blocked</span>` : ""}
                     </div>
                     
                     
                     ${isAdmin === true ? `<div class="admin-actions">
-                        <details open>
+                        <details open id="admin-controls">
                             <summary>Admin</summary>
                                 <div class="quick-actions-buttons">
-                                    <button>Mark as NSFW</button>
-                                    <button>Mark as Sensitive</button>
-                                    <button>Block this resource</button>
-                                    <button>Delete from storage</button>
+                                    <button class="nsfw" onclick="viewGIF.setNSFW(${!isNSFW})">${isNSFW ? "Unmark" : "Mark"} as NSFW</button>
+                                    <button class="sensitive" onclick="viewGIF.setSensitive(${!isSensitive})">${isSensitive ? "Unmark" : "Mark"} as Sensitive</button>
+                                    <button class="blocked" onclick="viewGIF.setBlocked(${!isBlocked})">${isBlocked ? "Unblock" : "Block"} this resource</button>
+                                    <button onclick="viewGIF.deleteResource('${hash}')">Delete from storage</button>
+                                </div>
+                                
+                                
+                                <div id="tag-container" style="width: 100%;"></div>
+                                    <input id="tag-input" type="text" placeholder="type tag and press enter">
+                                    <label id="tag-length-info"></label><br>
+                                    <button id="saveTags">Save tags</button>
                                 </div>
                             </details>
                         </div>`
@@ -294,6 +311,95 @@ async function viewGIF(hash) {
         null,
             ["Close", "normal"]
         )
+
+    // used for tags
+    if (isAdmin) {
+        const tagInput = customPrompt.modal.querySelector("#tag-input");
+        const tagContainer = customPrompt.modal.querySelector("#tag-container");
+        const tagInfo = customPrompt.modal.querySelector("#tag-length-info");
+        const saveTags = customPrompt.modal.querySelector("#saveTags");
+
+        gif.tags.split(",").forEach(t => addTagBubble(t));
+        saveTags.onclick = () => {
+            updateTagsOnServer();
+        }
+
+        tagInput.addEventListener("keydown", e => {
+            if (e.key !== "Enter") return;
+            e.preventDefault();
+
+            const value = tagInput.value.trim();
+            if (!value) return;
+            if (tagContainer.querySelector(`[data-tag="${value}"]`)) {
+                tagInput.value = "";
+                return;
+            }
+
+            addTagBubble(value);
+            tagInput.value = "";
+            updateTagInfo();
+        });
+
+        function addTagBubble(tag) {
+            const el = document.createElement("span");
+            el.className = "tag-bubble";
+            el.dataset.tag = tag;
+            el.textContent = tag;
+            el.onclick = () => {
+                el.remove();
+            };
+            tagContainer.appendChild(el);
+            updateTagInfo();
+        }
+
+        async function updateTagsOnServer() {
+            const tags = [...tagContainer.querySelectorAll(".tag-bubble")]
+                .map(e => e.dataset.tag)
+                .join(",");
+
+            await API.RESOURCES.Update(hash, "tags", tags);
+            console.log(tags)
+        }
+
+        function updateTagInfo() {
+            tagInfo.innerText =
+                `${tagContainer.querySelectorAll(".tag-bubble").length} tags`;
+        }
+    }
+
+
+    viewGIF.setNSFW = async function(bool){
+        if(typeof bool !== "boolean") throw new Error("Boolean must be supplied");
+
+        await API.RESOURCES.Update(hash, "isNSFW", Number(bool));
+        await refreshView();
+    }
+    viewGIF.setSensitive = async function(bool){
+        if(typeof bool !== "boolean") throw new Error("Boolean must be supplied");
+
+        await API.RESOURCES.Update(hash, "isSensitive", Number(bool));
+        await refreshView();
+    }
+    viewGIF.setBlocked = async function(bool){
+        if(typeof bool !== "boolean") throw new Error("Boolean must be supplied");
+
+        await API.RESOURCES.Update(hash, "isBlocked", Number(bool));
+        await refreshView();
+    }
+    viewGIF.deleteResource = async function(hash){
+        if(!hash) throw new Error("Hash must be supplied");
+
+        let decision = confirm("Are you sure you want to delete this resource?");
+        if(decision){
+            await API.RESOURCES.Delete(hash);
+            customPrompt.closePrompt();
+            displayTrendingGIFs();
+        }
+    }
+
+    async function refreshView(){
+        await viewGIF(hash);
+    }
 }
 
 function changeGifPreviewFromViewer(element){
