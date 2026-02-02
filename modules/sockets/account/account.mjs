@@ -1,6 +1,6 @@
 import {
     createAccount,
-    getAccountFromDbByIdOrName, isAdmin,
+    getAccountFromDbByIdOrName, getAccountRateLimit, isAdmin,
     isAdminAccount,
     isTerminated,
     sanitizeUsername, validateAccount
@@ -19,7 +19,7 @@ const register_limit = new dSyncRateLimit({
 
     getTotalLimit: async (req) => {
         if(await isAdmin(req)) return 9999;
-        return 5;
+        return 50;
     },
 
     getBlockUntil: async (req) => {
@@ -68,7 +68,10 @@ starter.app.post("/account/", starter.express.json(), async (req, res) => {
 
         return res.status(200).json({
             error: null,
-            account: await getAccountFromDbByIdOrName(name)
+            account: {
+                ...await getAccountFromDbByIdOrName(name),
+                ...await getAccountRateLimit(req)
+            }
         });
 
     } catch (err) {
@@ -78,7 +81,7 @@ starter.app.post("/account/", starter.express.json(), async (req, res) => {
 });
 
 
-starter.app.post("/register", starter.express.json(), async (req, res) => {
+starter.app.post("/register", starter.express.json(), register_limit.middleware(), async (req, res) => {
     try {
         const { name, password } = req.body;
 
@@ -123,7 +126,7 @@ starter.app.post("/login/verify", starter.express.json(), async (req, res) => {
     }
 });
 
-starter.app.post("/login", starter.express.json(), async (req, res) => {
+starter.app.post("/login", starter.express.json(), register_limit.middleware(), async (req, res) => {
     try {
         const { name, password } = req.body;
 

@@ -1,5 +1,6 @@
 import {db, dFiles} from "../../index.mjs";
 import bcrypt from "bcrypt";
+import {config} from "./configHelper.mjs";
 
 export function isTerminated(terminated){
     if(typeof terminated !== "number") throw new Error("terminated must be a number. Got: " + typeof terminated);
@@ -23,6 +24,22 @@ export function generateId(length) {
         counter += 1;
     }
     return result;
+}
+
+export async function getAccountRateLimit(req){
+    const { name = null, token = null } = req.body ?? {};
+
+    let account = null;
+    if(name && token){
+        account = await getAccountFromDbByIdOrName(sanitizeUsername(name));
+        if(!await validateAccount(name, token)) account = null;
+    }
+
+    return {
+        search_rate_limit: account?.search_rate_limit ?? config.ratelimits.gifs.search.ip,
+        upload_rate_limit: account?.upload_rate_limit ?? config.ratelimits.gifs.upload.ip,
+        file_access_rate_limit: account?.file_access_rate_limit ?? config.ratelimits.files.access.ip,
+    }
 }
 
 export async function getAccountFromDbByIdOrName(accountId){

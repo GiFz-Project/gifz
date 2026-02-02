@@ -31,9 +31,9 @@ async function populateAccountPanels() {
     if(!account) return console.warn("You are not logged in");
 
     panelContainer.innerHTML = getPanelHTML("Upload Limit", `${account.upload_limit} MB`);
-    panelContainer.innerHTML += getPanelHTML("Search Rate Limit", "50 req/min");
-    panelContainer.innerHTML += getPanelHTML("File Access Rate Limit", "200 req/min");
-    panelContainer.innerHTML += getPanelHTML("Upload Rate Limit", "50 req/min");
+    panelContainer.innerHTML += getPanelHTML("Search Rate Limit", `${account.search_rate_limit} req/min`);
+    panelContainer.innerHTML += getPanelHTML("File Access Rate Limit", `${account.file_access_rate_limit} req/min`);
+    panelContainer.innerHTML += getPanelHTML("Upload Rate Limit", `${account.upload_rate_limit} req/min`);
 
     function getPanelHTML(name, value) {
         return `   

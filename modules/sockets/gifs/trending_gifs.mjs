@@ -9,7 +9,7 @@ import {
     getSafeResource,
     searchPopularGifs
 } from "../../functions/gifHelper.mjs";
-import {isAdmin} from "../../functions/accounts.mjs";
+import {getAccountRateLimit, isAdmin} from "../../functions/accounts.mjs";
 
 const rateLimiter = new dSyncRateLimit({
     windowMs: (60_000 * 10),
@@ -24,7 +24,7 @@ starter.app.get(
     rateLimiter.middleware({
         getIpLimit: async (req) => {
             if(await isAdmin(req)) return Infinity;
-            return config.ratelimits.gifs.search.ip
+            return (await getAccountRateLimit(req)).search_rate_limit || config.ratelimits.gifs.search.ip
         },
         getTotalLimit: async (req) => {
             if(await isAdmin(req)) return Infinity;
@@ -63,7 +63,7 @@ starter.app.get(
     rateLimiter.middleware({
         getIpLimit: async (req) => {
             if(await isAdmin(req)) return Infinity;
-            return config.ratelimits.gifs.search.ip
+            return (await getAccountRateLimit(req)).search_rate_limit || config.ratelimits.gifs.search.ip
         },
         getTotalLimit: async (req) => {
             if(await isAdmin(req)) return Infinity;
@@ -91,7 +91,7 @@ starter.app.get(
     rateLimiter.middleware({
         getIpLimit: async (req) => {
             if(await isAdmin(req)) return Infinity;
-            return config.ratelimits.gifs.search.ip
+            return (await getAccountRateLimit(req)).search_rate_limit || config.ratelimits.gifs.search.ip
         },
         getTotalLimit: async (req) => {
             if(await isAdmin(req)) return Infinity;

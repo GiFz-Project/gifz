@@ -52,6 +52,7 @@ function buildConfig(jsonObject){
     JSONTools.checkObjectKeys(jsonObject, "uploads.default_status", "pending", true);
     JSONTools.checkObjectKeys(jsonObject, "uploads.max_tags", 20, true);
     JSONTools.checkObjectKeys(jsonObject, "uploads.trending_duration", 30, true);
+    JSONTools.checkObjectKeys(jsonObject, "uploads.upload_limit", 10, true);
 
     saveConfig("config.json", jsonObject);
 }

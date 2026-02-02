@@ -35,6 +35,7 @@
     "uploads": {
         "default_status": "approved",
         "max_tags": 20,
-        "trending_duration": 30
+        "trending_duration": 30,
+        "upload_limit": 10
     }
 }

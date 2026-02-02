@@ -14,7 +14,7 @@ import {getCache, setCache} from "./modules/functions/cache.mjs";
 import {runTranscodingJob} from "./modules/functions/transcoding.mjs";
 import dSyncRateLimit from "@hackthedev/dsync-ratelimit";
 import DateTools from "@hackthedev/datetools";
-import {isAdmin} from "./modules/functions/accounts.mjs";
+import {getAccountRateLimit, isAdmin, validateAccount} from "./modules/functions/accounts.mjs";
 
 console.clear();
 
@@ -100,8 +100,12 @@ const tables = [
             {name: "icon", type: "varchar(1000) DEFAULT NULL"},
             {name: "isTerminated", type: "bigint NOT NULL DEFAULT 0"},
             {name: "isAdmin", type: "bigint NOT NULL DEFAULT 0"},
-            {name: "upload_limit", type: "bigint NOT NULL DEFAULT 10"},
             {name: "created", type: "bigint NOT NULL DEFAULT (UNIX_TIMESTAMP() * 1000)"},
+            //
+            {name: "upload_limit", type: "bigint NOT NULL DEFAULT 10"},
+            {name: "search_rate_limit", type: "bigint DEFAULT NULL"},
+            {name: "upload_rate_limit", type: "bigint DEFAULT NULL"},
+            {name: "file_access_rate_limit", type: "bigint DEFAULT NULL"},
         ],
         keys: [
             {name: "PRIMARY KEY", type: "(rowId)"},
@@ -273,7 +277,7 @@ async function initUploadHandle() {
                 if (!r.allow && !await isAdmin(req)) return false;
 
                 if(await isAdmin(req)) return Infinity;
-                return 15;
+                return (await getAccountRateLimit(req)).upload_limit || config.uploads.upload_limit;
             },
 
             getMaxFolderSizeMB: async (req) => {
@@ -313,7 +317,7 @@ async function initUploadHandle() {
                 if (!r.allow && !await isAdmin(req)) return false;
 
                 // upload rate limit
-                const rUser = file_ratelimits.check(`upload/${ipsec.getClientIp(req)}`,config.ratelimits.gifs.upload.ip);
+                const rUser = file_ratelimits.check(`upload/${ipsec.getClientIp(req)}`, (await getAccountRateLimit(req)).upload_rate_limit || config.ratelimits.gifs.upload.ip);
                 const rTotal = file_ratelimits.check(`upload/total`, config.ratelimits.gifs.upload.total);
 
                 if ((!rUser.ok || !rTotal.ok) && !await isAdmin(req)) {
@@ -331,7 +335,7 @@ async function initUploadHandle() {
                 let fileHash = req.params.id.split("_")[0];
 
                 // file access rate limit
-                const rUser = file_ratelimits.check(`file/${fileHash}/${ipsec.getClientIp(req)}`,config.ratelimits.files.access.ip);
+                const rUser = file_ratelimits.check(`file/${fileHash}/${ipsec.getClientIp(req)}`, (await getAccountRateLimit(req)).file_access_rate_limit || config.ratelimits.files.access.ip);
                 const rTotal = file_ratelimits.check(`file/${fileHash}/total`, config.ratelimits.files.access.total);
 
                 if ((!rUser.ok || !rTotal.ok) && !await isAdmin(req)) {
@@ -358,8 +362,12 @@ async function initUploadHandle() {
 
                 if (!accountId) accountId = 0;
                 if (accountId && !token) accountId = 0;
+
+                // if login stuff present, use for credits
                 if (accountId && token) {
-                    // todo: check auth for crediting
+                    if(!await validateAccount(accountId, token)){
+                        accountId = 0;
+                    }
                 }
 
                 const ext = file.ext?.toLowerCase();
