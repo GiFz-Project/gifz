@@ -297,7 +297,7 @@ async function viewGIF(hash) {
                     
                     ${isAdmin === true ? `
                         <div class="admin-actions">
-                            <details open id="admin-controls">     
+                            <details id="admin-controls">     
                                 <summary>Admin</summary>
                                     <div class="quick-actions-buttons">
                                         <button class="nsfw" onclick="viewGIF.setNSFW(${!isNSFW})">${isNSFW ? "Unmark" : "Mark"} as NSFW</button>

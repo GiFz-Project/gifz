@@ -53,6 +53,31 @@ starter.app.get("/permission/check/:perm", starter.express.json(), async (req, r
     }
 });
 
+starter.app.post("/account/", starter.express.json(), async (req, res) => {
+    try {
+        const { name, token } = req.body;
+
+        if (!name)
+            return res.status(400).json({ error: "Missing name parameter" })
+
+        if (!token)
+            return res.status(400).json({ error: "Missing token parameter" })
+
+        // admins have all perms, always
+        if(!await validateAccount(name, token)) return res.status(403).json({ error: "Auth failed"})
+
+        return res.status(200).json({
+            error: null,
+            account: await getAccountFromDbByIdOrName(name)
+        });
+
+    } catch (err) {
+        console.error("register error:", err);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+
 starter.app.post("/register", starter.express.json(), async (req, res) => {
     try {
         const { name, password } = req.body;

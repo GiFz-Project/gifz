@@ -1,0 +1,21 @@
+#accountPopup .account-panels {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+#accountPopup .account-panels .panel{
+    background-color: white;
+    color: black;
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+#accountPopup .account-panels .panel h2{
+    margin-top: 0;
+    margin-bottom: 6px;
+    font-size: 18px;
+}
+#accountPopup .account-panels .panel p{
+    margin: 4px;
+}

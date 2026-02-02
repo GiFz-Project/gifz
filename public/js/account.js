@@ -22,7 +22,7 @@ function registerAccountContext(){
     )
 }
 
-async function showAccountPopup(page = null){
+async function showAccountPopup(page = "account"){
     getAccountPopupElement().innerHTML =
         `
         <div class="account-layout">
@@ -116,8 +116,8 @@ function getAccountPopupElement(){
 let currentpage;
 const pageJsPromises = {};
 
-async function loadPageContent(page, container) {
-    if (currentpage === page) return;
+async function loadPageContent(page = "account", container) {
+    //if (currentpage === page) return;
     currentpage = page;
 
     const content = container;
@@ -128,7 +128,6 @@ async function loadPageContent(page, container) {
     await new Promise(r => setTimeout(r, 160));
 
     content.innerHTML = "";
-
     document.querySelectorAll("link[data-page]").forEach(l => l.remove());
 
     const css = document.createElement("link");
