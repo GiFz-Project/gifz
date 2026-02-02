@@ -29,4 +29,10 @@
 
 .sql-table tbody tr:hover{
     background: #eaeaea;
+    cursor: pointer;
+}
+
+#resource-search{
+    width: 100%;
+    margin-bottom: 1rem;
 }

@@ -1,4 +1,30 @@
 class API {
+
+    static RESOURCES = class {
+        static async Search(hash){
+            if (!hash)
+                throw new Error("hash was not supplied in search")
+
+            let response = await fetch(`/resources/search/${hash}`);
+            if (response.status !== 200) throw new Error(response.statusText);
+
+            return response.json();
+        }
+
+        static async List(timestamp = null, limit = null) {
+            if (timestamp && typeof timestamp !== "number")
+                throw new Error("Timestamp must be a timestamp (number/integer) in miliseconds!")
+
+            if (limit && typeof limit !== "number")
+                throw new Error("Limit must be a number (integer)")
+
+            let response = await fetch(`/resources/list${timestamp ? `/${timestamp}` : ""}`)
+            if (response.status !== 200) throw new Error(response.statusText);
+
+            return response.json();
+        }
+    }
+
     static GIFS = class {
         static async getPopularGIFs(timestamp = null, limit = null) {
             if (timestamp && typeof timestamp !== "number")

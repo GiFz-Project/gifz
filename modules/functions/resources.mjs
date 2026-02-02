@@ -21,3 +21,15 @@ export async function getResources(timestamp = null, limit = 100) {
     );
 }
 
+export async function searchResource(hash) {
+    if(!hash) throw new Error("No hash in search")
+
+    return await db.queryDatabase(
+        `
+        SELECT *
+        FROM resources
+        WHERE fileHash LIKE ?
+        `,
+        [`%${hash}%`]
+    );
+}

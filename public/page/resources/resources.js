@@ -5,21 +5,53 @@ document.addEventListener("pagechange", e => {
     initResourceList();
 });
 
-async function getResources(timestamp = null){
-    let response = await fetch(`/resources/list${timestamp ? `/${timestamp}` : ""}`);
-    if(response.status === 200){
-        let json = await response.json();
-        return json.resources;
-    }
-    else{
-        console.log(response);
-        return null
-    }
+function registerResourcePageContext(){
+    if(window.registeredResourcePageContext) return;
+
+    ContextMenu.registerClickEvent(
+        "view resource row in page",
+        [
+            "#accountPopup .content #resourcePageTable tr",
+        ],
+        async (data) => {
+            let hash = findAttributeUp(data.element, "data-hash", 3);
+            console.log(data.element)
+
+            if (!hash) return console.error("Couldnt show gif because hash wasnt found")
+            viewGIF(hash);
+        }
+    )
+
+    window.registeredResourcePageContext = true;
 }
 
-async function initResourceList(){
-    let resources = await getResources();
-    console.log(resources)
+function initResourceSearchHandler(){
+    if(window.didInitPageResourceSearch) return;
+
+    let searchTimeout = null;
+    getResourcePageSearchElement().addEventListener('input', function(){
+        clearTimeout(searchTimeout);
+
+        searchTimeout = setTimeout(async () => {
+            let search = getResourcePageSearchElement()?.value?.trim();
+            if(search) await initResourceList(await API.RESOURCES.Search(search));
+        }, 500)
+    })
+
+    window.didInitPageResourceSearch = true;
+}
+
+function getResourcePageSearchElement(){
+    return getAccountContentElement().querySelector("#resource-search");
+}
+
+async function initResourceList(data = null){
+    initResourceSearchHandler();
+    registerResourcePageContext();
+
+    let response = await API.RESOURCES.List();
+    let resources = data?.resource || response.resources;
+    console.log(resources, data);
     if(resources) renderResourceRow(resources);
 }
 
@@ -27,7 +59,6 @@ function renderResourceRow(resources){
     if (!resources || !resources.length) return;
 
     let html = `
-        <div>
             <table class="sql-table">
                 <thead>
                     <tr>
@@ -43,8 +74,8 @@ function renderResourceRow(resources){
 
     for (let resource of resources) {
         html += `
-            <tr>
-                <td>${truncateString(resource.fileHash, 10)}</td>
+            <tr data-hash="${resource.fileHash}">
+                <td>${truncateString(resource.fileHash, 20)}</td>
                 <td>${resource.type}</td>
                 <td>${resource.status}</td>
                 <td>${resource.host ?? "-"}</td>
@@ -56,9 +87,8 @@ function renderResourceRow(resources){
     html += `
                 </tbody>
             </table>
-        </div>
     `;
 
-    getAccountContentElement().innerHTML += html;
+    getAccountContentElement().querySelector("#resourcePageTable").innerHTML = html;
 }
 

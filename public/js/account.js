@@ -11,7 +11,7 @@ function registerAccountContext(){
     )
 }
 
-function showAccountPopup(){
+async function showAccountPopup(page = null){
     getAccountPopupElement().innerHTML =
         `
         <div class="account-layout">
@@ -22,6 +22,10 @@ function showAccountPopup(){
             </div>
         </div>
         `
+
+    if(page){
+        await loadPageContent(page, getAccountContentElement());
+    }
 
     getAccountPopupElement().style.display = "flex";
     getAccountLayoutElement().style.display = "flex"
