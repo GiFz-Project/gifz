@@ -1,7 +1,8 @@
 :root {
     --main: #131415;
     /* --accent: hsl(from var(--main) calc(h * 2.3) calc(s * 14) calc(l * 5)); green */
-    --accent: hsl(from var(--main) h s calc(l * 1));
+    --accent: hsl(from var(--main) h s calc(l * 14));
+    --anti-accent: hsl(from var(--main) h s calc(l * 1));
 }
 
 html,
@@ -10,10 +11,23 @@ body {
     padding: 0;
     width: 100%;
     height: 100%;
-    background-color: hsl(from var(--main) h s calc(l * 14));
-    color: hsl(from var(--main) h s calc(l * 1));
     overflow: hidden;
 }
+
+body {
+    background-color: #0f0f0f;
+    background-image: url("data:image/svg+xml;utf8,\
+                                        <svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'>\
+                                        <g transform='rotate(25 60 60)'>\
+                                        <circle cx='60' cy='60' r='10' fill='white' fill-opacity='0.08'/>\
+                                        </g>\
+                                        </svg>");
+    background-repeat: repeat;
+    background-size: 60px 60px; /* kleiner */
+    color: hsl(from var(--accent) h s l);
+}
+
+
 
 *{
     box-sizing: border-box;
@@ -32,12 +46,12 @@ a {
 
 .layout .header{
     background-color: var(--accent);
-    color: hsl(from var(--main) h s calc(l * 14));
+    color: hsl(from var(--anti-accent) h s l);
 }
 
 .layout .header .buttons button{
-    background-color: hsl(from var(--main) h s calc(l * 14));
-    color: hsl(from var(--main) h s calc(l * 1));
+    background-color: hsl(from var(--anti-accent) h s l);
+    color: hsl(from var(--accent) h s calc(l * 1));
 
     border: 1px solid hsl(from var(--main) h s calc(l * 14));
 }
@@ -46,12 +60,12 @@ a {
 }
 .layout .quick-actions span{
     background-color: var(--accent);
-    color: hsl(from var(--main) h s calc(l * 14))
+    color: hsl(from var(--anti-accent) h s l);
 }
 
 .layout .footer{
     background-color: var(--accent);
-    color: hsl(from var(--main) h s calc(l * 14));
+    color: hsl(from var(--anti-accent) h s l);
 }
 
 #promptContainer .gif-info-container .media_variants{
@@ -63,8 +77,8 @@ a {
 }
 #promptContainer .gif-info-container .media_variants button{
     background-color: transparent;
-    color: hsl(from var(--main) h s calc(l * 14));
-    border: 1px solid hsl(from var(--main) h s calc(l * 14) / 20%);
+    color: hsl(from var(--anti-accent) h s l);
+    border: 1px solid hsl(from var(--anti-accent) h s l / 20%);
 }
 
 
@@ -75,14 +89,14 @@ a {
 }
 
 #accountPopup .account-layout{
-    background-color: hsl(from var(--main) h s calc(l * 14));
+    background-color: hsl(from var(--anti-accent) h s l);
 }
 #accountPopup .account-layout .nav {
     background-color: var(--accent);
-    color: hsl(from var(--main) h s calc(l * 14));
+    color: hsl(from var(--anti-accent) h s l);
 }
 #accountPopup .account-layout .nav details ul li{
-    background-color: hsl(from var(--main) h s calc(l * 14));
+    background-color: hsl(from var(--anti-accent) h s l);
 }
 
 #accountPopup .account-layout .nav details button{

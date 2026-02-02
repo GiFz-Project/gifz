@@ -17,10 +17,12 @@ function registerGifContext(){
     ContextMenu.registerClickEvent(
         "gif-viewer",
         [
-            ".layout .content img.gif-entry",
+            ".layout .content .gif-entry-wrapper",
+            ".layout .content .gif-entry-wrapper span",
         ],
         async (data) => {
-            let hash = data.element.getAttribute("data-hash");
+            let hash = findAttributeUp(data.element, "data-hash", 3);
+            console.log(data.element)
             if (!hash) return console.error("Couldnt show gif because hash wasnt found")
             viewGIF(hash);
         }
@@ -221,9 +223,10 @@ async function displayTrendingGIFs(suppliedGifs = null, timestamp = null, limit 
     function getGifEntryHTML(gifObj) {
 
         return `
-            <div class="gif-entry-wrapper">
-                ${gifObj.isNSFW ? `<span class="notice">NSFW</span>` : ""}
-                ${gifObj.isSensitive && !gifObj.isNSFW ? `<span class="notice">Sensitive</span>` : ""}
+            <div class="gif-entry-wrapper" data-hash="${gifObj.fileHash}">
+                ${gifObj.isNSFW ? `<span class="notice ${gifObj.isNSFW ? `nsfw` : ""}">NSFW</span>` : ""}
+                ${gifObj.isSensitive && !gifObj.isNSFW ? `<span class="notice ${gifObj.isSensitive ? `sensitive` : ""}">Sensitive</span>` : ""}
+                
                 <img data-hash="${gifObj.fileHash}" 
                     class="gif-entry ${gifObj.isNSFW ? `nsfw` : ""} ${gifObj.isSensitive ? `sensitive` : ""}" 
                     draggable="false" src="/upload/${gifObj.fileHash}_preview">
@@ -425,7 +428,7 @@ function changeGifPreviewFromViewer(element){
     imagePreview.src = getGifMediaVariantUrl(hash, element.classList[0]);
 
     try{
-        navigator.clipboard.writeText(getGifMediaVariantUrl(hash, element.classList[0]));
+        navigator.clipboard.writeText(window.location.origin + getGifMediaVariantUrl(hash, element.classList[0]));
         showSystemMessage({
             title: "Link saved to clipboard!",
             text: `Using ${element.classList[0]} quality`,

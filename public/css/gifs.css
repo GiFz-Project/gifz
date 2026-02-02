@@ -83,11 +83,48 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2;
+    z-index: 1;
 
     font-size: 18px;
     font-weight: bold;
 }
+
+.layout .content .trending-gifs-container .gif-entry-wrapper .notice.nsfw,
+.layout .content .trending-gifs-container .gif-entry-wrapper .notice.sensitive {
+    text-transform: uppercase;
+    font-weight: bold;
+    color: white;
+}
+.layout .content .trending-gifs-container .gif-entry-wrapper .notice::before {
+    z-index: -1;
+}
+.layout .content .trending-gifs-container .gif-entry-wrapper .notice.sensitive::before {
+    content: "";
+    position: absolute;
+    inset: -40px;
+    pointer-events: none;
+    background: radial-gradient(
+            circle,
+            rgba(0,0,0,0.6) 0%,
+            rgba(0,0,0,0.5) 35%,
+            rgba(0,0,0,0.4) 55%,
+            rgba(0,0,0,0.3) 74%
+    );
+}
+.layout .content .trending-gifs-container .gif-entry-wrapper .notice.nsfw::before {
+    content: "";
+    position: absolute;
+    inset: -40px;
+    pointer-events: none;
+    background: radial-gradient(
+            circle,
+            rgba(255,0,0,0.4) 0%,
+            rgba(255,0,0,0.3) 35%,
+            rgba(255,0,0,0.2) 55%,
+            rgba(255,0,0,0.1) 75%
+    );
+}
+
 .layout .content .trending-gifs-container img{
     width: 100%;
     height: 100%;
