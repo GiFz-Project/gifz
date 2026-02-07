@@ -14,7 +14,7 @@
 
 .sql-table thead th{
     background: var(--accent);
-    color: #fff;
+    color: black;
     position: sticky;
     top: 0;
 }

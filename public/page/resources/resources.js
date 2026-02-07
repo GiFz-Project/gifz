@@ -66,7 +66,6 @@ function renderResourceRow(resources){
                         <th>Type</th>
                         <th>Status</th>
                         <th>Host</th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -79,7 +78,6 @@ function renderResourceRow(resources){
                 <td>${resource.type}</td>
                 <td>${resource.status}</td>
                 <td>${resource.host ?? "-"}</td>
-                <td>&times;</td>
             </tr>
         `;
     }
