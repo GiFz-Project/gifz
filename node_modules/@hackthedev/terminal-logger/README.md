@@ -21,6 +21,8 @@ This small library was designed for NodeJS and to bring pretty logs to the termi
 This is a general example
 
 ```js
+import Logger from "@hackthedev/terminal-logger"
+
 Logger.info("Content")
 Logger.success("Content")
 Logger.error("Content")

@@ -76,7 +76,7 @@ export let ipsec = new dSyncIPSec({
     //
     checkCache: async (ip) => {
         let ipInfoRow = await getCache(ip, "ip_cache");
-        if(ipInfoRow.length === 0){
+        if(ipInfoRow?.length === 0){
             await setCache(ip, "ip_cache");
         }
     },
@@ -347,7 +347,7 @@ async function initUploadHandle() {
                 if(!gif) console.error("Unable to update views for resource ", fileHash);
 
                 let clientIp = ipsec.getClientIp(req);
-                let ipInfo = await ipsec.lookupIP(clientIp);
+                let ipInfo = clientIp ? await ipsec.lookupIP(clientIp) : null;
 
                 addResourceView(gif.rowId, ipInfo?.location?.country_code);
             },

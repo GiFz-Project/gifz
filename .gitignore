@@ -1,6 +1,7 @@
 .idea
 public/uploads
 configs/
+node_modules/
 
 # Logs
 logs

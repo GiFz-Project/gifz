@@ -1,3 +1,5 @@
+import fs from "fs";
+
 export default class Logger {
     static logDebug = false;
 
@@ -32,45 +34,121 @@ export default class Logger {
 
     static log(level, message, color = Logger.colors.fgWhite) {
         if (message instanceof Error) {
-            console.log(`${color}${Logger.displayDate()}[${level}] ${message.message}\n${message.stack}${Logger.colors.reset}`);
-        } else if (typeof message === 'object') {
-            console.log(`${color}${Logger.displayDate()}[${level}]\n${JSON.stringify(message, null, 4)}${Logger.colors.reset}`);
-        } else {
-            console.log(`${color}${Logger.displayDate()}[${level}] ${message}${Logger.colors.reset}`);
+            Logger.printErrorWithFrame(level, message, color);
+            return;
+        }
+
+        console.log(
+            `${color}${Logger.displayDate()}[${level}] ${message}${Logger.colors.reset}`
+        );
+    }
+
+    static printErrorWithFrame(level, err, color) {
+        const reset = Logger.colors.reset;
+
+        console.log(
+            `${color}${Logger.displayDate()}[${level}] ${err.name}: ${err.message}${reset}`
+        );
+
+        if (!err.stack) return;
+
+        const stackLines = err.stack.split("\n");
+        const firstFrame = stackLines.find(l => l.includes("(") && l.includes(":"));
+        const match = firstFrame?.match(/\((.*):(\d+):(\d+)\)/);
+
+        if (!match) {
+            console.log(`${color}${err.stack}${reset}`);
+            return;
+        }
+
+        const [, file, lineStr, colStr] = match;
+        const line = parseInt(lineStr, 10);
+        const col = parseInt(colStr, 10);
+
+        try {
+            const lines = fs.readFileSync(file, "utf8").split("\n");
+            const start = Math.max(0, line - 3);
+            const end = Math.min(lines.length, line + 2);
+
+            for (let i = start; i < end; i++) {
+                const ln = String(i + 1).padStart(3, " ");
+                console.log(`${color}${ln} | ${lines[i]}${reset}`);
+                if (i + 1 === line) {
+                    console.log(
+                        `${color}    | ${" ".repeat(Math.max(col - 1, 0))}^${reset}`
+                    );
+                }
+            }
+        } catch {
+        }
+
+        for (const l of stackLines.slice(1)) {
+            console.log(`${color}${l}${reset}`);
         }
     }
 
-    static space(amount = 1){
-        for(let i = 0; i < amount; i++) {
-            console.log(" ");
-        }
+
+    static space(amount = 1) {
+        for (let i = 0; i < amount; i++) console.log(" ");
     }
 
     static info(message, color = "") {
-        Logger.log("INFO", message, color ? Logger.colors.fgCyan + color : Logger.colors.fgCyan);
+        Logger.log(
+            "INFO",
+            message,
+            color ? Logger.colors.fgCyan + color : Logger.colors.fgCyan
+        );
     }
 
     static success(message, color = "") {
-        Logger.log("SUCCESS", message, color ? Logger.colors.fgGreen + color : Logger.colors.fgGreen);
+        Logger.log(
+            "SUCCESS",
+            message,
+            color ? Logger.colors.fgGreen + color : Logger.colors.fgGreen
+        );
     }
 
     static warn(message, color = "") {
-        Logger.log("WARN", message, color ? Logger.colors.fgYellow + color : Logger.colors.fgYellow);
+        Logger.log(
+            "WARN",
+            message,
+            color ? Logger.colors.fgYellow + color : Logger.colors.fgYellow
+        );
     }
 
     static error(message, color = "") {
-        Logger.log("ERROR", message, color ? Logger.colors.fgRed + color : Logger.colors.fgRed);
+        Logger.log(
+            "ERROR",
+            message,
+            color ? Logger.colors.fgRed + color : Logger.colors.fgRed
+        );
     }
 
     static debug(message, color = "") {
-        if(!Logger.logDebug) return;
-        Logger.log("DEBUG", message, color ? Logger.colors.bright + Logger.colors.fgBlack + color : Logger.colors.bright + Logger.colors.fgBlack);
+        if (!Logger.logDebug) return;
+        Logger.log(
+            "DEBUG",
+            message,
+            color
+                ? Logger.colors.bright + Logger.colors.fgBlack + color
+                : Logger.colors.bright + Logger.colors.fgBlack
+        );
     }
 
     static displayDate() {
-        const today = new Date();
-        const date = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0') + '-' + today.getDate().toString().padStart(2, '0');
-        const time = today.getHours().toString().padStart(2, '0') + ":" + today.getMinutes().toString().padStart(2, '0') + ":" + today.getSeconds().toString().padStart(2, '0');
+        const d = new Date();
+        const date =
+            d.getFullYear() +
+            "-" +
+            String(d.getMonth() + 1).padStart(2, "0") +
+            "-" +
+            String(d.getDate()).padStart(2, "0");
+        const time =
+            String(d.getHours()).padStart(2, "0") +
+            ":" +
+            String(d.getMinutes()).padStart(2, "0") +
+            ":" +
+            String(d.getSeconds()).padStart(2, "0");
         return `[${date} ${time}] `;
     }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@hackthedev/terminal-logger",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This small library was designed for NodeJS and to bring pretty logs to the terminal. It has the following features:",
   "homepage": "https://github.com/NETWORK-Z-Dev/terminal-logger#readme",
   "bugs": {

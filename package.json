@@ -8,9 +8,14 @@
   },
   "dependencies": {
     "@hackthedev/datetools": "^1.0.1",
-    "@hackthedev/dsync-files": "^1.0.7",
-    "@hackthedev/dsync-ipsec": "^1.0.7",
+    "@hackthedev/dsync-files": "^1.0.9",
+    "@hackthedev/dsync-ipsec": "^1.0.12",
     "@hackthedev/dsync-ratelimit": "^1.0.1",
-    "bcrypt": "^6.0.0"
+    "@hackthedev/dsync-sql": "^1.0.10",
+    "@hackthedev/express-starter": "^1.0.6",
+    "@hackthedev/json-tools": "^1.0.8",
+    "@hackthedev/socket-tools": "^1.0.4",
+    "bcrypt": "^6.0.0",
+    "file-type": "^21.3.0"
   }
 }
