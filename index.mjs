@@ -221,6 +221,9 @@ async function initMain() {
             return [
                 ["project_name", () => "GiFz"],
                 ["max_tags", () => config.uploads.max_tags],
+                ["rules", () => config.instance.info.rules],
+                ["title", () => config.instance.info.title],
+                ["footer", () => config.instance.info.footer],
             ]
         },
         getExtensions: async (req) => {

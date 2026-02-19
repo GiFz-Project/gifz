@@ -38,7 +38,6 @@ starter.app.get("/permission/check/:perm", starter.express.json(), async (req, r
         // admins have all perms, always
         if(await isAdmin(req)) return res.status(200).json({ error: null, check: true})
 
-
         // todo: actual perm check eventually
 
 
@@ -128,7 +127,7 @@ starter.app.post("/login/verify", starter.express.json(), async (req, res) => {
 
 starter.app.post("/login", starter.express.json(), register_limit.middleware(), async (req, res) => {
     try {
-        const { name, password } = req.body;
+        const { name = null, password = null } = req?.body || {};
 
         if (!name || !password)
             return res.status(400).json({ error: "Missing name or password" });
@@ -137,18 +136,18 @@ starter.app.post("/login", starter.express.json(), register_limit.middleware(), 
         if (!account)
             return res.status(401).json({ error: "Invalid credentials" });
 
-        if (isTerminated(account.isTerminated))
+        if (isTerminated(account?.isTerminated))
             return res.status(403).json({ error: "Account terminated" });
 
-        const valid = await bcrypt.compare(password, account.password);
+        const valid = await bcrypt.compare(password, account?.password);
         if (!valid)
             return res.status(401).json({ error: "Invalid credentials" });
 
         return res.status(200).json({
             error: null,
-            id: account.id,
-            token: account.token,
-            name: account.name
+            id: account?.id,
+            token: account?.token,
+            name: account?.name
         });
 
     } catch (err) {

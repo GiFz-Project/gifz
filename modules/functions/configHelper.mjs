@@ -23,6 +23,19 @@ function buildConfig(jsonObject){
     if(!jsonObject) throw new Error("No JSON object provided")
     if(typeof jsonObject !== "object") throw new Error("Data needs to be a JSON object");
 
+    JSONTools.checkObjectKeys(jsonObject, "instance.info.title", "GiFz - Open Source GIF API", true);
+    JSONTools.checkObjectKeys(jsonObject, "instance.info.footer", `
+        <a href="https://github.com/GiFz-Project/gifz">Github</a>&bullet;
+        <a href="https://ko-fi.com/shydevil">Donate</a>
+    `, true);
+    JSONTools.checkObjectKeys(jsonObject, "instance.info.rules", `
+        <ul>
+            <li>No Copyright Protected Material</li>
+            <li>No illegal content (CSAM, ...)</li>
+        </ul>
+    `, true);
+
+
     JSONTools.checkObjectKeys(jsonObject, "sql.host", "localhost", true);
     JSONTools.checkObjectKeys(jsonObject, "sql.user", "root", true);
     JSONTools.checkObjectKeys(jsonObject, "sql.pass", "", true);

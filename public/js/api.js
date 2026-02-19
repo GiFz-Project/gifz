@@ -13,7 +13,8 @@ class API {
                         }
                     });
                 if (response.status !== 200) throw new Error(response.statusText);
-                return response.json();
+                let json = await response.json();
+                return json?.check ?? false;
             }
         }
     }
