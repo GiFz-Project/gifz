@@ -102,6 +102,7 @@ async function uploadGIF(error = null) {
             let response = await FileManager.uploadFile(file, {
                 onProgress: async (percent) => {
                     ElementLoader.setValue(progressElement, percent);
+                    showSystemMessage({title: `Uploading...${percent}%`})
                 },
                 params: {
                     tags: tags.join(",")
@@ -121,6 +122,10 @@ async function uploadGIF(error = null) {
                         type: "success",
                     })
                 }
+
+                setTimeout(() => {
+                    displayTrendingGIFs();
+                }, 1000)
             }
             console.log(response)
         },
@@ -239,22 +244,24 @@ async function viewGIF(hash) {
     if(!hash) throw new Error("hash is missing");
 
     let gif = await API.RESOURCES.Get(hash);
-    console.log(gif)
 
-    let uploaderId = Number(gif.accountId);
+    let uploaderId = Number(gif?.accountId);
 
     let isAnonymous = uploaderId === 0
-    let isAdmin = (await API.ACCOUNT.PERMISSION.check("*")).check;
+    let isAdmin = await API.ACCOUNT.PERMISSION.check("*");
     let isNSFW = gif?.isNSFW === 1;
     let isSensitive = gif?.isSensitive === 1;
     let isBlocked = gif?.isBlocked === 1;
+
+    let status = gif?.status
+    let isPending = status === "pending";
 
     customPrompt.showPrompt(
         "View GIF",
         `
             <div class="gif-view-container">
                 <div class="gif-view">
-                    <img data-hash="${hash}" src="${await API.RESOURCES.GetUploadURL(`${hash}_medium`)}"></img>
+                    <img data-hash="${hash}" src="${await API.RESOURCES.GetUploadURL(`${hash}`)}"></img>
                 </div>          
                 
                 <div class="gif-info-container">                        
@@ -306,6 +313,9 @@ async function viewGIF(hash) {
                                         <button onclick="viewGIF.deleteResource('${hash}')">Delete from storage</button>
                                     </div>
                                     
+                                    <div class="quick-actions-buttons">
+                                        <button class="verify" onclick="viewGIF.setStatus(${isPending})">${isPending ? "Verify" : "Set as Pending"}</button>
+                                    </div>
                                 
                                     <div class="tag-editor">
                                         <label>Edit Tags</label>
@@ -381,6 +391,14 @@ async function viewGIF(hash) {
     }
 
 
+    viewGIF.setStatus = async function(bool){
+        if(typeof bool !== "boolean") throw new Error("bool must be supplied");
+        console.log(bool)
+
+        if(bool === true) await API.RESOURCES.Update(hash, "status", "approved");
+        if(bool === false) await API.RESOURCES.Update(hash, "status", "pending");
+        await refreshView();
+    }
     viewGIF.setNSFW = async function(bool){
         if(typeof bool !== "boolean") throw new Error("Boolean must be supplied");
 

@@ -3,6 +3,9 @@ import { readdir, access, unlink } from "fs/promises";
 import { spawn } from "child_process";
 import path from "path";
 import Logger from "@hackthedev/terminal-logger";
+import { copyFile } from "fs/promises";
+import {checkForUnregisteredResources} from "./resources.mjs";
+
 
 let startedTranscodingJob = false;
 
@@ -20,6 +23,8 @@ const mediaVariants = {
 };
 
 export async function runTranscodingJob(skipInterval = false, force = false, intervalMs = 5 * 60_000) {
+    checkForUnregisteredResources();
+
     if (startedTranscodingJob && !force)
         throw new Error("Job already started");
 
@@ -36,26 +41,36 @@ export async function runTranscodingJob(skipInterval = false, force = false, int
     startedTranscodingJob = true;
 }
 
+let jobRunning = false;
+
 export async function ensureMediaVariants(dir, variants) {
-    const files = await readdir(dir);
+    if (jobRunning) return;
+    jobRunning = true;
 
-    for (const file of files) {
-        const ext = path.extname(file).toLowerCase();
-        const base = path.basename(file, ext);
+    if(!variants) variants = mediaVariants;
 
-        if (base.includes("_")) continue;
-        if (ext !== ".gif") continue;
+    try {
+        const files = await readdir(dir);
 
-        const src = path.join(dir, file);
+        for (const file of files) {
+            const ext = path.extname(file).toLowerCase();
+            const base = path.basename(file, ext);
 
-        for (const [name, cfg] of Object.entries(variants)) {
-            const out = path.join(dir, `${base}_${name}.${cfg.ext}`);
-            if (await exists(out)) continue;
+            if (base.includes("_")) continue;
+            if (ext !== ".gif") continue;
 
-            Logger.info(`Transcoding ${base} → ${name}`);
+            const src = path.join(dir, file);
 
-            await transcodeGifWithAlpha(src, out, cfg);
+            for (const [name, cfg] of Object.entries(variants)) {
+                const out = path.join(dir, `${base}_${name}.${cfg.ext}`);
+                if (await exists(out)) continue;
+
+                Logger.info(`Transcoding ${base} → ${name}`);
+                await transcodeGifWithAlpha(src, out, cfg);
+            }
         }
+    } finally {
+        jobRunning = false;
     }
 }
 
@@ -63,22 +78,43 @@ async function transcodeGifWithAlpha(src, out, cfg) {
     const palette = out + ".palette.png";
     const vf = `fps=${cfg.fps},scale=${cfg.scale}:flags=lanczos`;
 
-    await runFFmpeg([
-        "-i", src,
-        "-vf", `${vf},palettegen=reserve_transparent=1`,
-        "-y",
-        palette
-    ]);
+    try {
+        await runFFmpeg([
+            "-i", src,
+            "-vf", `${vf},palettegen=reserve_transparent=1`,
+            "-y",
+            palette
+        ]);
 
-    await runFFmpeg([
-        "-i", src,
-        "-i", palette,
-        "-lavfi", `${vf}[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=5`,
-        "-y",
-        out
-    ]);
+        if (await exists(palette)) {
+            await runFFmpeg([
+                "-i", src,
+                "-i", palette,
+                "-lavfi", `${vf}[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=5`,
+                "-y",
+                out
+            ]);
+            return;
+        }
 
-    await unlink(palette);
+        // fallback without palette
+        await runFFmpeg([
+            "-i", src,
+            "-vf", vf,
+            "-y",
+            out
+        ]);
+
+    } catch {
+        // ultra-short gif → just copy
+        await copyFile(src, out);
+    } finally {
+        await safeUnlink(palette);
+    }
+}
+
+async function safeUnlink(p) {
+    try { await unlink(p); } catch {}
 }
 
 async function exists(p) {
@@ -92,7 +128,16 @@ async function exists(p) {
 
 function runFFmpeg(args) {
     return new Promise((resolve, reject) => {
-        const p = spawn("ffmpeg", args, { stdio: "ignore" });
-        p.on("exit", code => code === 0 ? resolve() : reject(new Error(`ffmpeg exited with ${code}`)));
+        const p = spawn("ffmpeg", args);
+
+        let stderr = "";
+        p.stderr.on("data", d => stderr += d.toString());
+
+        p.on("error", err => reject(err));
+
+        p.on("close", code => {
+            if (code === 0) resolve();
+            else reject(new Error(`ffmpeg exited with ${code}: ${stderr}`));
+        });
     });
 }

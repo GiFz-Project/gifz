@@ -1,8 +1,10 @@
-import {db} from "../../index.mjs";
+import {db, dFiles} from "../../index.mjs";
 import {config} from "./configHelper.mjs";
 import Logger from "@hackthedev/terminal-logger"
 import DateTools from "@hackthedev/datetools";
 import {isAdmin} from "./accounts.mjs";
+import path from "path";
+import fs from "fs";
 
 let startedViewJob = false;
 
