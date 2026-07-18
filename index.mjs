@@ -224,7 +224,10 @@ async function initMain() {
         getPlaceholders: async (req) => {
             return [
                 ["project_name", () => "GiFz"],
-                ["max_tags", () => config.uploads.max_tags],
+                ["title", () => config.instance.info.title],
+                ["footer", () => config.instance.info.footer],
+                ["rules", () => config.instance.info.rules],
+                ["max_tags", () => config?.uploads?.max_tags ?? 5],
             ]
         },
         getExtensions: async (req) => {

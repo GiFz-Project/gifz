@@ -37,5 +37,12 @@
         "max_tags": 20,
         "trending_duration": 30,
         "upload_limit": 10
+    },
+    "instance": {
+        "info": {
+            "title": "GiFz - Open Source GIF API",
+            "footer": "\n        <a href=\"https://github.com/GiFz-Project/gifz\">Github</a>&bullet;\n        <a href=\"https://ko-fi.com/shydevil\">Donate</a>\n    ",
+            "rules": "\n        <ul>\n            <li>No Copyright Protected Material</li>\n            <li>No illegal content (CSAM, ...)</li>\n        </ul>\n    "
+        }
     }
 }

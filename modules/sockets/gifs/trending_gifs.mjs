@@ -78,6 +78,7 @@ starter.app.get(
         const {timestamp, limit} = req.params;
 
         let popularGifs = await getPopularGIFS(limit, timestamp);
+
         popularGifs = await Promise.all(
             popularGifs.map(async (gif) => await getSafeResource(req, gif))
         );
