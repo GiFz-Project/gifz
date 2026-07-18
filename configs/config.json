@@ -2,7 +2,7 @@
     "sql": {
         "host": "localhost",
         "user": "root",
-        "pass": "",
+        "pass": "test",
         "db": "gifz",
         "connection_limit": 10
     },
@@ -33,7 +33,7 @@
         }
     },
     "uploads": {
-        "default_status": "approved",
+        "default_status": "pending",
         "max_tags": 20,
         "trending_duration": 30,
         "upload_limit": 10

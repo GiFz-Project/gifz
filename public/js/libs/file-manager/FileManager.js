@@ -75,7 +75,13 @@ class FileManager {
         return result;
     }
 
-    static async srcToFile(src) {
+    static async srcToFile(src, {
+        authObj = {},
+        onProgress = null,
+        params = {},
+        type = "upload",
+        host = null,
+    } = {}) {
         if (!src || typeof src !== "string")
             return {ok: false, error: "invalid_src"};
 
@@ -89,7 +95,13 @@ class FileManager {
             const filename = `${this.generateId(16)}.${ext}`;
             const file = new File([blob], filename, {type: blob.type});
 
-            const res = await this.uploadFile([file]);
+            const res = await this.uploadFile([file] , {
+                host,
+                authObj,
+                onProgress,
+                params,
+                type,
+            });
             return res;
         } catch (err) {
             console.error("srcToFile error:", err);
@@ -98,13 +110,14 @@ class FileManager {
     }
 
     static async uploadFile(files, {
-        accountId = null,
-        accountToken = null,
+        authObj = {},
         onProgress = null,
-        params = {}
+        params = {},
+        type = "upload",
+        host = null,
     } = {}) {
-        const file = files[0] || files;
-        const chunkSize = 1024 * 256; // 256kb
+        const file = files[0] ?? files;
+        const chunkSize = 1024 * 256;
         const totalChunks = Math.ceil(file.size / chunkSize);
         const fileId = crypto.randomUUID();
 
@@ -120,23 +133,32 @@ class FileManager {
             const arrayBuf = await chunk.arrayBuffer();
 
             const search = new URLSearchParams({
-                filename,
-                chunkIndex: i,
-                totalChunks,
-                fileId,
                 ...params
             });
 
-            const url = `/upload?${search.toString()}`;
-
+            const url = `${host ?? ""}/upload${search.toString() ? `?${search.toString()}` : ""}`;
+            console.log({
+                headers: {
+                    ...authObj,
+                    "x-upload-type": type,
+                    "x-file-name": encodeURIComponent(filename),
+                    "x-chunk-index": String(i),
+                    "x-total-chunks": String(totalChunks),
+                    "x-file-id": fileId
+                }
+            })
 
             const res = await fetch(url, {
                 method: "POST",
-                body: arrayBuf,
                 headers: {
-                    "x-user-id": accountId,
-                    "x-auth-token": accountToken
+                    ...authObj,
+                    "x-upload-type": type,
+                    "x-file-name": encodeURIComponent(filename),
+                    "x-chunk-index": String(i),
+                    "x-total-chunks": String(totalChunks),
+                    "x-file-id": fileId
                 },
+                body: arrayBuf
             });
 
             const json = await res.json();
@@ -145,10 +167,11 @@ class FileManager {
                 return json;
 
             const percent = Math.round(((i + 1) / totalChunks) * 100);
+
             if (percent !== lastPercent) {
                 lastPercent = percent;
 
-                if(onProgress && typeof onProgress === "function"){
+                if (onProgress && typeof onProgress === "function") {
                     await onProgress(percent);
                 }
             }

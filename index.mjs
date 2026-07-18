@@ -29,6 +29,10 @@ export const dFiles = new dSyncFiles();
 let config = getConfigObject();
 
 export let storagePath = path.resolve(config.storage.path)
+
+// create storage directory path if it doesnt exist yet
+if(!fs.existsSync(storagePath)) fs.mkdirSync(storagePath);
+
 let usedUpStorageBytes = await dFiles.getFolderSize(storagePath);
 
 Logger.info(Logger.colors.underscore + Logger.colors.bright + "Overview")
