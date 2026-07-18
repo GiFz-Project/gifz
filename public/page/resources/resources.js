@@ -1,8 +1,8 @@
-document.addEventListener("pagechange", e => {
+document.addEventListener("pagechange", async e => {
     console.log(e.detail.page);
     if (e.detail.page !== "resources") return;
 
-    initResourceList();
+    if(await API.ACCOUNT.PERMISSION.check("admin")) initResourceList();
 });
 
 function registerResourcePageContext(){

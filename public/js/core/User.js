@@ -42,7 +42,7 @@ class User {
 
         static async login(name, password) {
             if (!name || !password)
-                throw new Error("Missing name or password");
+                throw new Error("Missing username or password");
 
             const res = await fetch("/login", {
                 method: "POST",
@@ -67,8 +67,7 @@ class User {
             });
 
             const data = await res.json();
-            if (!res.ok || data.error) throw new Error(data.error || "Login failed");
-            return data.result;
+            return data;
         }
 
         static async getAccount() {

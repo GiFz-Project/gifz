@@ -64,6 +64,7 @@ a {
     color: hsl(from var(--anti-accent) h s l);
 }
 
+.layout .footer a,
 .layout .footer {
     background-color: var(--accent);
     color: hsl(from var(--anti-accent) h s l);
@@ -110,4 +111,9 @@ a {
     background-color: transparent;
     color: hsl(from var(--accent) h s l);
     border: none;
+}
+
+#promptContainer .login-error{
+    border: 1px solid indianred;
+    background-color: rgba(205, 92, 92, 0.58);
 }

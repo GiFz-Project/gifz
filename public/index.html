@@ -37,7 +37,7 @@
 
 <div class="layout">
     <div class="header">
-        <div class="name">{{project_name}} - Open Source GIF API</div>
+        <div class="name">{{title}}</div>
 
         <div class="buttons">
             <button class="upload" onclick="uploadGIF()">Upload</button>
@@ -58,7 +58,7 @@
     <div class="content"></div>
 
     <div class="footer">
-        test
+        {{footer}}
     </div>
 </div>
 
@@ -76,14 +76,55 @@
         //showAccountPopup("account");
     })
 
-    async function checkAccountPage(){
+    async function checkAccountPage(error = null){
         let isLoggedIn = await User.Auth.loggedIn();
-        console.log(isLoggedIn)
-        if(isLoggedIn){
+        if(!isLoggedIn?.error){
             showAccountPopup("account");
         }
         else{
             // show login
+            customPrompt.showPrompt(
+                "Login",
+                `
+                ${
+                    error ?
+                        `<div class="login-error">
+                            ${error}
+                        </div>`
+                    : ""
+                }
+
+
+                <div class="login-container">
+                    <input type="text" class="prompt-input" id="username" name="username" placeholder="Username...">
+                    <input type="text" class="prompt-input" id="password" name="password" placeholder="Password...">
+                </div><br>
+
+                <a style="display: flex;justify-content: center; width: 100%; margin: auto;">Register an account instead</a>
+        `,
+                async (values) => {
+                    console.log(values)
+                    if(!values?.username){
+                        return checkAccountPage("You didnt enter an username")
+                    }
+
+                    if(!values?.password){
+                        return checkAccountPage("You didnt enter a password")
+                    }
+
+                    let loginResult = await User.Auth.login(values.username, values.password);
+
+                    if(loginResult?.error){
+                        return checkAccountPage(loginResult.error)
+                    }
+                    else{
+                        if(loginResult?.id && loginResult?.token){
+                            console.log(loginResult)
+                        }
+                    }
+                },
+                ["Login", "normal"]
+            )
         }
     }
 

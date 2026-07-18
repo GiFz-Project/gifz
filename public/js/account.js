@@ -26,7 +26,7 @@ async function showAccountPopup(page = "account"){
     getAccountPopupElement().innerHTML =
         `
         <div class="account-layout">
-            <div class="nav">${getAccountNavHTML()}</div>        
+            <div class="nav">${await getAccountNavHTML()}</div>        
             <div class="content"></div>
         </div>
         `
@@ -44,7 +44,7 @@ async function showAccountPopup(page = "account"){
     })
 }
 
-function getAccountNavHTML(){
+async function getAccountNavHTML(){
     return `
         <details open>
             <summary>Overview</summary>
@@ -53,6 +53,7 @@ function getAccountNavHTML(){
             </ul>
         </details>
         
+        ${await API.ACCOUNT.PERMISSION.check("admin") ? `
         <details open>
             <summary>General</summary>
             <ul>
@@ -61,7 +62,9 @@ function getAccountNavHTML(){
                 <li><button type="button" data-view="stats">Stats</button></li>
             </ul>
         </details>
+        ` : ""}
         
+        ${await API.ACCOUNT.PERMISSION.check("admin") ? `
         <details open>
             <summary>Network</summary>
             <ul>
@@ -69,7 +72,9 @@ function getAccountNavHTML(){
                 <li><button type="button" data-view="dsync-servers">Servers</button></li>
             </ul>
         </details>
+        ` : ""}
 
+        ${await API.ACCOUNT.PERMISSION.check("admin") ? `
         <details open>
             <summary>Server Settings</summary>
             <ul>
@@ -79,6 +84,7 @@ function getAccountNavHTML(){
                 <li><button type="button" data-view="gif-access">GIF Access</button></li>
             </ul>
         </details>
+        ` : ""}
     `;
 }
 
