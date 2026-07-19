@@ -60,25 +60,20 @@ export async function ensureMediaVariants(dir, variants) {
 }
 
 async function transcodeGifWithAlpha(src, out, cfg) {
-    const palette = out + ".palette.png";
-    const vf = `fps=${cfg.fps},scale=${cfg.scale}:flags=lanczos`;
+    // causes issues with short givs otherwise. this way it seems to work for now.
+    const frameDuration = 1 / cfg.fps;
+    const vf = `tpad=stop_mode=clone:stop_duration=${frameDuration},fps=${cfg.fps},scale=${cfg.scale}:flags=lanczos`;
 
     await runFFmpeg([
         "-i", src,
-        "-vf", `${vf},palettegen=reserve_transparent=1`,
-        "-y",
-        palette
-    ]);
-
-    await runFFmpeg([
-        "-i", src,
-        "-i", palette,
-        "-lavfi", `${vf}[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=5`,
+        "-filter_complex",
+        `[0:v]${vf},split[frames][paletteInput];` +
+        `[paletteInput]palettegen=reserve_transparent=1[palette];` +
+        `[frames][palette]paletteuse=dither=bayer:bayer_scale=5`,
+        "-loop", "0",
         "-y",
         out
     ]);
-
-    await unlink(palette);
 }
 
 async function exists(p) {
@@ -92,7 +87,24 @@ async function exists(p) {
 
 function runFFmpeg(args) {
     return new Promise((resolve, reject) => {
-        const p = spawn("ffmpeg", args, { stdio: "ignore" });
-        p.on("exit", code => code === 0 ? resolve() : reject(new Error(`ffmpeg exited with ${code}`)));
+        const p = spawn("ffmpeg", args, {
+            stdio: ["ignore", "ignore", "pipe"]
+        });
+
+        let stderr = "";
+
+        // basically now with this code the goal is to better catch ffmpeg erros.
+        p.stderr.on("data", data => {
+            stderr += data.toString();
+        });
+
+        p.on("error", reject);
+        p.on("exit", code => {
+            if (code === 0) {
+                resolve();
+            } else {
+                reject(new Error(`ffmpeg exited with ${code}\n${stderr}`));
+            }
+        });
     });
 }
