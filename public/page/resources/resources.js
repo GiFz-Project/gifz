@@ -65,12 +65,10 @@ async function initResourceList(data = null){
         if(getResourceTypeFilter() !== "*") resources = resources.filter(resource => resource.type === getResourceTypeFilter());
     }
 
-    if(resources) renderResourceRow(resources);
+    renderResourceRow(resources ?? {});
 }
 
 function renderResourceRow(resources){
-    if (!resources || !resources.length) return;
-
     let html = `
             <table class="sql-table">
                 <thead>
@@ -84,8 +82,9 @@ function renderResourceRow(resources){
                 <tbody>
     `;
 
-    for (let resource of resources) {
-        html += `
+    if(Object.keys(resources)?.length > 0) {
+        for (let resource of resources) {
+            html += `
             <tr data-hash="${resource.fileHash}">
                 <td>${truncateString(resource.fileHash, 20)}</td>
                 <td>${resource.type}</td>
@@ -93,6 +92,7 @@ function renderResourceRow(resources){
                 <td>${resource.host ?? "-"}</td>
             </tr>
         `;
+        }
     }
 
     html += `
