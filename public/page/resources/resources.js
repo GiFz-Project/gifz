@@ -42,7 +42,15 @@ function initResourceSearchHandler(){
 }
 
 function getResourcePageSearchElement(){
-    return getAccountContentElement().querySelector("#resource-search");
+    return getAccountContentElement()?.querySelector("#resource-search");
+}
+
+function getResourceStatusFilter(){
+    return getAccountContentElement()?.querySelector("select#status-filter")?.value;
+}
+
+function getResourceTypeFilter(){
+    return getAccountContentElement()?.querySelector("select#type-filter")?.value;
 }
 
 async function initResourceList(data = null){
@@ -51,7 +59,12 @@ async function initResourceList(data = null){
 
     let response = await API.RESOURCES.List();
     let resources = data?.resource || response.resources;
-    console.log(resources, data);
+
+    if(getResourceStatusFilter() && getResourceTypeFilter() && resources){
+        if(getResourceStatusFilter() !== "*") resources = resources.filter(resource => resource.status === getResourceStatusFilter());
+        if(getResourceTypeFilter() !== "*") resources = resources.filter(resource => resource.type === getResourceTypeFilter());
+    }
+
     if(resources) renderResourceRow(resources);
 }
 

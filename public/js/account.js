@@ -58,12 +58,13 @@ async function getAccountNavHTML(){
             <summary>General</summary>
             <ul>
                 <li><button type="button" data-view="resources">Media Resources</button></li>
-                <li><button type="button" data-view="users">User Accounts</button></li>
-                <li><button type="button" data-view="stats">Stats</button></li>
+                <!--<li><button type="button" data-view="users">User Accounts</button></li>
+                <li><button type="button" data-view="stats">Stats</button></li>-->
             </ul>
         </details>
         ` : ""}
         
+        <!--
         ${await API.ACCOUNT.PERMISSION.check("admin") ? `
         <details open>
             <summary>Network</summary>
@@ -85,6 +86,7 @@ async function getAccountNavHTML(){
             </ul>
         </details>
         ` : ""}
+        -->
     `;
 }
 

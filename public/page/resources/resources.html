@@ -2,6 +2,29 @@
     <h1>Resources</h1>
 
     <input type="text" id="resource-search" placeholder="Search resource...">
+
+
+    <div class="resource-admin-filters">
+        <div class="status">
+            <label for="status-filter">Status filter</label>
+            <select id="status-filter" onchange="initResourceList()">
+                <option value="*">All</option>
+                <option value="pending" selected>Pending</option>
+                <option value="approved">Approved</option>
+                <option value="blocked">Blocked</option>
+            </select>
+        </div>
+
+        <div class="type">
+            <label for="type-filter">Type filter</label>
+            <select id="type-filter" onchange="initResourceList()">
+                <option value="*">All</option>
+                <option value="gif" selected>GIF</option>
+            </select>
+        </div>
+    </div>
+
+
 </div>
 
 

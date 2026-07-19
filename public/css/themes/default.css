@@ -80,7 +80,7 @@ a {
 
 #promptContainer .gif-info-container .media_variants button {
     background-color: transparent;
-    color: hsl(from var(--anti-accent) h s l);
+    color: hsl(from var(--accent) h s l);
     border: 1px solid hsl(from var(--anti-accent) h s l / 20%);
 }
 

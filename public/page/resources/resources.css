@@ -34,5 +34,20 @@
 
 #resource-search{
     width: 100%;
-    margin-bottom: 1rem;
+}
+
+.resource-admin-filters {
+    margin: 1rem 0;
+    display: flex;
+    gap: 1rem;
+}
+
+.resource-admin-filters > div {
+    display: flex;
+    gap: 1rem;
+    background-color: #ffffff;
+    color: black;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+    border: 1.5px solid rgb(128 128 128 / 0.5);
 }

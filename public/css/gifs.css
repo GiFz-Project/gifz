@@ -32,6 +32,7 @@
     padding: 4px 8px;
     border-radius: 4px;
     cursor: pointer;
+    border: 1.5px solid hsl(from var(--main) h s calc(l * 8) / 20%);
     background-color: hsl(from var(--main) h s calc(l * 8) / 20%)
 }
 #promptContainer #tag-container{

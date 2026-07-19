@@ -277,15 +277,13 @@ async function viewGIF(hash) {
                     <div class="uploader">
                         <p>Uploaded by: ${isAnonymous ? "Guest" : "User"}</p>
                         ${
-                            gif?.ip ? `<span>${gif.ip}</span>` : ""
-                        }
-                        ${
-                            gif?.country_code ? `<span>${gif.country_code}</span>` : ""
+                            gif?.ip && gif?.ip !== "unkown" ? `<span>${gif.ip}</span>` : ""
                         }
                     </div>
                     
-                    <div>
-                        <p style="margin-bottom: 2px;">Tags:</p>
+                    <div class="tags-container">
+                        <p>Tags:</p>
+                        
                         <div class="tags">                        
                             ${gif.tags
                                     .split(",")
@@ -304,7 +302,7 @@ async function viewGIF(hash) {
                     
                     ${isAdmin === true ? `
                         <div class="admin-actions">
-                            <details id="admin-controls">     
+                            <details id="admin-controls" open>     
                                 <summary>Admin</summary>
                                     <div class="quick-actions-buttons">
                                         <button class="nsfw" onclick="viewGIF.setNSFW(${!isNSFW})">${isNSFW ? "Unmark" : "Mark"} as NSFW</button>
@@ -390,7 +388,7 @@ async function viewGIF(hash) {
         }
     }
 
-
+    // some hacky shit lol
     viewGIF.setStatus = async function(bool){
         if(typeof bool !== "boolean") throw new Error("bool must be supplied");
         console.log(bool)
@@ -430,6 +428,7 @@ async function viewGIF(hash) {
 
     async function refreshView(){
         await viewGIF(hash);
+        await initResourceList();
     }
 }
 

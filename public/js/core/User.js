@@ -51,7 +51,7 @@ class User {
             });
 
             const data = await res.json();
-            if (!res.ok || data.error) throw new Error(data.error || "Login failed");
+            if (!res.ok || data.error) return data;
 
             this.setName(data?.name)
             this.setToken(data?.token)

@@ -21,6 +21,7 @@
 
     <!-- Core Libs etc -->
     <script src="/js/libs/file-manager/FileManager.js?v={{version}}"></script>
+    <script src="/js/libs/event-dispatcher/EventDispatcher.js?v={{version}}"></script>
     <script src="/js/core/User.js?v={{version}}"></script>
     <script src="/js/core/ContextMenu.js?v={{version}}"></script>
     <script src="/js/core/PageRenderer.js?v={{version}}"></script>
@@ -97,7 +98,7 @@
 
                 <div class="login-container">
                     <input type="text" class="prompt-input" id="username" name="username" placeholder="Username...">
-                    <input type="text" class="prompt-input" id="password" name="password" placeholder="Password...">
+                    <input type="password" class="prompt-input" id="password" name="password" placeholder="Password...">
                 </div><br>
 
                 <a style="display: flex;justify-content: center; width: 100%; margin: auto;">Register an account instead</a>
@@ -120,6 +121,13 @@
                     else{
                         if(loginResult?.id && loginResult?.token){
                             console.log(loginResult)
+                            if(loginResult?.error === null){
+                                showSystemMessage({
+                                    title: "Logged in!",
+                                    icon: "success",
+                                    type: "success"
+                                })
+                            }
                         }
                     }
                 },
