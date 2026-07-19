@@ -112,7 +112,7 @@ export async function getGifByHash(hash) {
     return gifRow[0];
 }
 
-export async function getNewGIFS(limit = 50, timestamp = null) {
+export async function getNewGIFS(limit = 150, timestamp = null) {
     const where = [
         "IsBlocked = 0",
         "status = 'approved'",
@@ -121,49 +121,22 @@ export async function getNewGIFS(limit = 50, timestamp = null) {
 
     const params = [];
 
-    // same shit as if the trending gifs part
-    if (!timestamp) {
-        const latestUpload = await db.queryDatabase(
-            `
-            SELECT MAX(created) AS latestCreated
-            FROM resources
-            WHERE IsBlocked = 0
-              AND status = 'approved'
-              AND type = 'gif'
-            `,
-            []
-        );
-
-        const latestTimestamp = Number(latestUpload?.[0]?.latestCreated);
-
-        if (latestTimestamp) {
-            timestamp = latestTimestamp - config.uploads.trending_duration * 24 * 60 * 60 * 1000;
-        }
-    }
-
     if (timestamp) {
-        where.push("created >= ?");
+        where.push("created < ?");
         params.push(timestamp);
     }
 
-    limit = Number(limit);
-
-    if (!Number.isFinite(limit)) {
+    if (typeof limit !== "number" || limit > config.ratelimits.gifs.search.max_amount) {
         limit = config.ratelimits.gifs.search.max_amount;
     }
 
-    limit = Math.min(
-        Math.max(Math.floor(limit), 1),
-        config.ratelimits.gifs.search.max_amount
-    );
-
     return await db.queryDatabase(
         `
-        SELECT *
-        FROM resources
-        WHERE ${where.join(" AND ")}
-        ORDER BY created DESC
-        LIMIT ${limit}
+            SELECT *
+            FROM resources
+            WHERE ${where.join(" AND ")}
+            ORDER BY created DESC
+                LIMIT ${limit}
         `,
         params
     );
@@ -186,7 +159,7 @@ export async function updateResource(hash, key, value) {
     return result?.rowsAffected;
 }
 
-export async function getPopularGIFS(limit = 50, timestamp = null) {
+export async function getPopularGIFS(limit = 150, timestamp = null) {
     const where = [
         "IsBlocked = 0",
         "status = 'approved'",
@@ -216,12 +189,6 @@ export async function getPopularGIFS(limit = 50, timestamp = null) {
         }
     }
 
-    // some lil pullshit
-    if (timestamp) {
-        where.push("created >= ?");
-        params.push(timestamp);
-    }
-
     limit = Number(limit);
 
     if (!Number.isFinite(limit)) {
@@ -233,19 +200,25 @@ export async function getPopularGIFS(limit = 50, timestamp = null) {
         config.ratelimits.gifs.search.max_amount
     );
 
+    if (timestamp) {
+        params.push(timestamp);
+    }
+
     return await db.queryDatabase(
         `
             SELECT *
             FROM resources
             WHERE ${where.join(" AND ")}
-            ORDER BY views DESC
-                LIMIT ${limit}
+            ORDER BY
+                ${timestamp ? "CASE WHEN created >= ? THEN 0 ELSE 1 END," : ""}
+                views DESC
+            LIMIT ${limit}
         `,
         params
     );
 }
 
-export async function searchPopularGifs(search, timestamp = null, limit = 50) {
+export async function searchPopularGifs(search, timestamp = null, limit = 150) {
     if (!search || !search?.length) return await getPopularGIFS(limit, timestamp);
 
     const tags = search
