@@ -2,6 +2,17 @@ import {db, storagePath} from "../../index.mjs";
 import fs from "fs";
 import path from "path";
 
+export function dynamicFilterResources(resource) {
+    const tags = resource?.tags?.split(",") ?? [];
+    if(!tags) return resource;
+
+    // so the idea is that if something is not marked as nsfw explicitly but the tag has it then it will be nsfw or sensitive based on tags
+    if(!resource?.isNSFW) resource.isNSFW = tags.includes("nsfw");
+    if(!resource?.isSensitive) resource.isSensitive = tags.includes("sensitive");
+
+    return resource;
+}
+
 export async function getResources(timestamp = null, limit = 100) {
     const where = [];
     const params = [];
@@ -11,7 +22,7 @@ export async function getResources(timestamp = null, limit = 100) {
         params.push(timestamp);
     }
 
-    return await db.queryDatabase(
+    let resources = await db.queryDatabase(
         `
         SELECT *
         FROM resources
@@ -20,6 +31,10 @@ export async function getResources(timestamp = null, limit = 100) {
         LIMIT ${limit}
         `,
         params
+    );
+
+    return await Promise.all(
+        resources.map(async (resource) => await dynamicFilterResources(resource))
     );
 }
 
@@ -60,12 +75,16 @@ export function deleteAllVariants(hash) {
 export async function searchResource(hash) {
     if(!hash) throw new Error("No hash in search")
 
-    return await db.queryDatabase(
+    let resources = await db.queryDatabase(
         `
         SELECT *
         FROM resources
         WHERE fileHash LIKE ?
         `,
         [`%${hash}%`]
+    );
+
+    return await Promise.all(
+        resources.map(async (resource) => await dynamicFilterResources(resource))
     );
 }

@@ -6,7 +6,6 @@ import DateTools from "@hackthedev/datetools";
 import {getGifByHash, getSafeResource, updateResource} from "../../functions/gifHelper.mjs";
 import dSyncRateLimit from "@hackthedev/dsync-ratelimit";
 import fs from "fs";
-
 const rateLimiter = new dSyncRateLimit({
     windowMs: (60_000 * 10),
     getBlockUntil: async (req) => {

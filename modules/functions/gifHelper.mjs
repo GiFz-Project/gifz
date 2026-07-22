@@ -3,6 +3,7 @@ import {config} from "./configHelper.mjs";
 import Logger from "@hackthedev/terminal-logger"
 import DateTools from "@hackthedev/datetools";
 import {isAdmin} from "./accounts.mjs";
+import {dynamicFilterResources} from "./resources.mjs";
 
 let startedViewJob = false;
 
@@ -109,6 +110,9 @@ export async function getGifByHash(hash) {
                                          FROM resources
                                          WHERE fileHash = ?`, [hash]);
     if (gifRow?.length === 0) return null;
+
+    gifRow[0] = await dynamicFilterResources(gifRow[0]);
+
     return gifRow[0];
 }
 
@@ -126,11 +130,12 @@ export async function getNewGIFS(limit = 150, timestamp = null) {
         params.push(timestamp);
     }
 
-    if (typeof limit !== "number" || limit > config.ratelimits.gifs.search.max_amount) {
-        limit = config.ratelimits.gifs.search.max_amount;
+    limit = Number(limit);
+    if (!Number.isFinite(limit) || limit > 150) {
+        limit = 150;
     }
 
-    return await db.queryDatabase(
+    let resources = await db.queryDatabase(
         `
             SELECT *
             FROM resources
@@ -139,6 +144,10 @@ export async function getNewGIFS(limit = 150, timestamp = null) {
                 LIMIT ${limit}
         `,
         params
+    );
+
+    return await Promise.all(
+        resources.map(async (resource) => await dynamicFilterResources(resource))
     );
 }
 
@@ -189,22 +198,18 @@ export async function getPopularGIFS(limit = 150, timestamp = null) {
         }
     }
 
+    // hard cap limit number
     limit = Number(limit);
-
-    if (!Number.isFinite(limit)) {
-        limit = config.ratelimits.gifs.search.max_amount;
+    if (!Number.isFinite(limit) || limit > 150) {
+        limit = 150;
     }
 
-    limit = Math.min(
-        Math.max(Math.floor(limit), 1),
-        config.ratelimits.gifs.search.max_amount
-    );
 
     if (timestamp) {
         params.push(timestamp);
     }
 
-    return await db.queryDatabase(
+    let resources = await db.queryDatabase(
         `
             SELECT *
             FROM resources
@@ -215,6 +220,10 @@ export async function getPopularGIFS(limit = 150, timestamp = null) {
             LIMIT ${limit}
         `,
         params
+    );
+
+    return await Promise.all(
+        resources.map(async (resource) => await dynamicFilterResources(resource))
     );
 }
 
@@ -242,8 +251,10 @@ export async function searchPopularGifs(search, timestamp = null, limit = 150) {
         params.push(timestamp);
     }
 
-    if (typeof limit !== "number" || limit > config.ratelimits.gifs.search.max_amount) {
-        limit = config.ratelimits.gifs.search.max_amount;
+    // hard cap limit number
+    limit = Number(limit);
+    if (!Number.isFinite(limit) || limit > 150) {
+        limit = 150;
     }
 
     const gifs = await db.queryDatabase(
@@ -257,5 +268,7 @@ export async function searchPopularGifs(search, timestamp = null, limit = 150) {
         params
     );
 
-    return gifs;
+    return await Promise.all(
+        gifs.map(async (resource) => await dynamicFilterResources(resource))
+    );
 }

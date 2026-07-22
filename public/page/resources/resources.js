@@ -15,8 +15,6 @@ function registerResourcePageContext(){
         ],
         async (data) => {
             let hash = findAttributeUp(data.element, "data-hash", 3);
-            console.log(data.element)
-
             if (!hash) return console.error("Couldnt show gif because hash wasnt found")
             viewGIF(hash);
         }
