@@ -9,7 +9,13 @@ import dSyncIPSec from "@hackthedev/dsync-ipsec"
 import path from "path"
 import fs from "fs"
 import {getConfigObject} from "./modules/functions/configHelper.mjs";
-import {addResourceView, getGifByHash, getSafeResource, runResourceViewJob} from "./modules/functions/gifHelper.mjs";
+import {
+    addResourceView,
+    getGifByHash,
+    getGifIdFromReq,
+    getSafeResource,
+    runResourceViewJob
+} from "./modules/functions/gifHelper.mjs";
 import {getCache, setCache} from "./modules/functions/cache.mjs";
 import {runTranscodingJob} from "./modules/functions/transcoding.mjs";
 import dSyncRateLimit from "@hackthedev/dsync-ratelimit";
@@ -300,11 +306,11 @@ async function initUploadHandle() {
                 const r = await ipsec.checkRequest(req);
                 if (!r.allow && !await isAdmin(req)) return false;
 
-                let fileHash = req.params.id.split("_")[0];
+                let fileHash = getGifIdFromReq(req)?.split("_")?.[0];
                 let gif = await getGifByHash(fileHash);
 
-                if(gif.isBlocked) return false
-                if(gif.status !== "approved") return false
+                if(gif?.isBlocked) return false
+                if(gif?.status !== "approved") return false
                 return true;
             },
 
@@ -339,7 +345,7 @@ async function initUploadHandle() {
                 const r = await ipsec.checkRequest(req);
                 if (!r.allow && !await isAdmin(req)) return false;
 
-                let fileHash = req.params.id.split("_")[0];
+                let fileHash = getGifIdFromReq(req);
 
                 // file access rate limit
                 const rUser = file_ratelimits.check(`file/${fileHash}/${ipsec.getClientIp(req)}`, (await getAccountRateLimit(req)).file_access_rate_limit || config.ratelimits.files.access.ip);

@@ -103,6 +103,10 @@ export async function processResourceViews(rowId, limit = 1000) {
     return count;
 }
 
+export function getGifIdFromReq(req){
+    return String(req.params?.id ?? req.params?.path?.[0])?.split("_")?.[0];
+}
+
 export async function getGifByHash(hash) {
     if (!hash) throw new Error("Hash not specified");
 
@@ -110,10 +114,7 @@ export async function getGifByHash(hash) {
                                          FROM resources
                                          WHERE fileHash = ?`, [hash]);
     if (gifRow?.length === 0) return null;
-
-    gifRow[0] = await dynamicFilterResources(gifRow[0]);
-
-    return gifRow[0];
+    return await dynamicFilterResources(gifRow[0]);
 }
 
 export async function getNewGIFS(limit = 150, timestamp = null) {
