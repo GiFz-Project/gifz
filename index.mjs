@@ -316,13 +316,16 @@ async function initUploadHandle() {
 
             getAllowedMimes: async (req) => {
                 const r = await ipsec.checkRequest(req);
-                if (!r.allow) return false;
+                if (!r.allow) return {allowed: [], fallback: {}};
 
-                return [
-                    "image/png",
-                    "image/jpeg",
-                    "image/gif",
-                ];
+                return {
+                    allowed: [
+                        "image/png",
+                        "image/jpeg",
+                        "image/gif",
+                    ],
+                    fallback: {}
+                };
             },
 
             canUpload: async (req) => {
